@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# node_modules di ccug-backend
+/ccug-backend/node_modules/
+/ccug-backend/.env
