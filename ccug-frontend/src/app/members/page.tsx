@@ -6,16 +6,31 @@ import { useRouter } from "next/navigation";
 // API Base URL - ambil dari environment variable atau default ke localhost
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+type Member = {
+  _id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  avatar?: string;
+  blog: boolean;
+  createdAt: string;
+};
+
+type UserType = {
+  username: string;
+  role: "admin" | "user";
+};
+
 export default function MembersPage() {
   const router = useRouter();
-  const [members, setMembers] = useState([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState(null);
-  const [deletingMember, setDeletingMember] = useState(null);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [deletingMember, setDeletingMember] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -52,22 +67,33 @@ export default function MembersPage() {
     loadMembers();
   }, []);
 
-  const loadMembers = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${BASE_URL}/api/members`);
-      if (!res.ok) throw new Error("Failed to fetch members");
-      const data = await res.json();
-      setMembers(data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
-    } catch (error) {
-      console.error(error);
-      setError("Failed to load members. Make sure the backend server is running on port 5000.");
-      setMembers([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const loadMembers = async () => {
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/members`);
+    if (!res.ok) throw new Error("Failed to fetch members");
+
+    const data: Member[] = await res.json();
+
+    setMembers(
+      data.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() -
+          new Date(b.createdAt).getTime()
+      )
+    );
+  } catch (err) {
+    console.error(err);
+    setError(
+      "Failed to load members. Make sure the backend server is running on port 5000."
+    );
+    setMembers([]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -77,7 +103,7 @@ export default function MembersPage() {
     router.push("/login");
   };
 
-  const openModal = (member = null) => {
+  const openModal = (member: Member | null = null) => {
     // Check if user is admin
     if (!isAdmin) {
       alert("Only admins can add or edit members. Please login as admin.");
@@ -91,7 +117,7 @@ export default function MembersPage() {
         name: member.name,
         description: member.description,
         tags: member.tags.join(", "),
-        avatar: member.avatar,
+        avatar: member.avatar ?? "",
         blog: member.blog,
       });
     } else {
@@ -175,7 +201,7 @@ export default function MembersPage() {
     }
   };
 
-  const openDeleteModal = (member) => {
+  const openDeleteModal = (member: Member) => {
     // Check if user is admin
     if (!isAdmin) {
       alert("Only admins can delete members. Please login as admin.");
@@ -305,7 +331,7 @@ export default function MembersPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {members.map((member) => (
+            {members.map((member: Member) => (
               <div
                 key={member._id}
                 className="border-2 border-ccug-purple/50 rounded-lg p-6 bg-ccug-dark/50 hover:border-ccug-gray transition-colors relative"
@@ -351,7 +377,7 @@ export default function MembersPage() {
 
                     {member.tags && member.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {member.tags.map((tag, tagIndex) => (
+                        {member.tags.map((tag: string, tagIndex: number) => (
                           <span
                             key={tagIndex}
                             className={`px-3 py-1 rounded text-xs font-medium ${

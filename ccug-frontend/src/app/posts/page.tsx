@@ -6,16 +6,26 @@ import { useRouter } from "next/navigation";
 // API Base URL
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+type Post = {
+  _id: string;
+  title: string;
+  category: string;
+  author: string;
+  date: string;
+  description: string;
+  url: string;
+};
+
 export default function PostsPage() {
   const router = useRouter();
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState(null);
-  const [deletingPost, setDeletingPost] = useState(null);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [deletingPost, setDeletingPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ username: string; role: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -60,8 +70,14 @@ export default function PostsPage() {
     try {
       const res = await fetch(`${BASE_URL}/api/posts`);
       if (!res.ok) throw new Error("Failed to fetch posts");
-      const data = await res.json();
-      setPosts(data.sort((a, b) => new Date(b.date) - new Date(a.date)));
+      const data: Post[] = await res.json();
+
+      setPosts(
+        data.sort(
+          (a: Post, b: Post) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        )     
+      );
     } catch (error) {
       console.error(error);
       setError("Failed to load posts. Make sure the backend server is running.");
@@ -79,7 +95,7 @@ export default function PostsPage() {
     router.push("/login");
   };
 
-  const openModal = (post = null) => {
+  const openModal = (post: Post | null = null) => {
     // Check if user is admin
     if (!isAdmin) {
       alert("Only admins can add or edit posts. Please login as admin.");
@@ -160,7 +176,7 @@ export default function PostsPage() {
     }
   };
 
-  const openDeleteModal = (post) => {
+  const openDeleteModal = (post: Post) => {
     // Check if user is admin
     if (!isAdmin) {
       alert("Only admins can delete posts. Please login as admin.");
@@ -207,7 +223,7 @@ export default function PostsPage() {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       day: 'numeric',
@@ -216,7 +232,7 @@ export default function PostsPage() {
     });
   };
 
-  function getCategoryColor(category) {
+  function getCategoryColor(category: string) {
     if (!category) {
       return {
         className: "border border-gray-500/50 text-gray-300",
@@ -240,7 +256,7 @@ export default function PostsPage() {
     };
   }
 
-  function parseCategories(categoryString) {
+  function parseCategories(categoryString: string) {
     return categoryString
       .split(",")
       .map(c => c.trim())
@@ -330,7 +346,7 @@ export default function PostsPage() {
         ) : (
           /* Posts List */
           <div className="space-y-8">
-            {posts.map((post) => (
+            {posts.map((post: Post) => (
               <div key={post._id} className="relative group">
                 {/* Admin Controls - Only show if admin */}
                 {isAdmin && (

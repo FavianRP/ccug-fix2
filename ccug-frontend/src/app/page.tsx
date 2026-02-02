@@ -1,6 +1,5 @@
 import { Rss } from 'lucide-react';
 import Link from 'next/link';
-import { posts } from '@/data/posts';
 import Image from 'next/image';
 
 export default function Home() {
@@ -107,27 +106,6 @@ export default function Home() {
     </div>
 
     <div className="border-b border-ccug-gray/50 my-8 sm:my-12"></div>
-
-    {/* Recent Posts */}
-    <div>
-      <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Recent Posts</h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        {posts.map((post) => (
-          <Link
-            key={post.slug}
-            href={`/posts/${post.slug}`}
-            className="block hover:text-ccug-purple transition rounded-lg p-4 border border-ccug-gray/30 bg-ccug-dark/50"
-          >
-            <h3 className="text-lg sm:text-xl font-bold text-ccug-purple mb-2">
-              {post.title}
-            </h3>
-            <p className="text-gray-400 text-xs sm:text-sm mb-2">📅 {post.date}</p>
-            <p className="text-sm sm:text-base text-gray-300">{post.description}</p>
-          </Link>
-        ))}
-      </div>
-    </div>
   </div>
 </div>
 
