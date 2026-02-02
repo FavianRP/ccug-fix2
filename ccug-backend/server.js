@@ -1,52 +1,142 @@
-// server.js
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const Member = require('./models/Member');
+const Contest = require('./models/Contest');
+const Post = require('./models/Post');
+const User = require('./models/User');
+const { authenticateToken, requireAdmin, JWT_SECRET } = require('./middleware/auth');
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ccug')
-.then(() => console.log('MongoDB connected successfully'))
-.catch((err) => console.error('MongoDB connection error:', err));
+mongoose.connect('mongodb://localhost:27017/ccug')
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-// Member Schema
-const memberSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  tags: [{
-    type: String,
-    trim: true
-  }],
-  avatar: {
-    type: String,
-    default: ''
-  },
-  blog: {
-    type: Boolean,
-    default: false
+// ============= AUTH ROUTES =============
+
+// Register (untuk membuat user pertama)
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, email, password, role } = req.body;
+
+    // Validasi
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Cek apakah user sudah ada
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Buat user baru
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword,
+      role: role || 'user'
+    });
+
+    await user.save();
+
+    res.status(201).json({ message: 'User registered successfully', userId: user._id });
+  } catch (error) {
+    res.status(500).json({ message: 'Error registering user', error: error.message });
   }
-}, {
-  timestamps: true
 });
 
-const Member = mongoose.model('Member', memberSchema);
+// Login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-// Routes
+    // Validasi
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
 
-// Get all members
+    // Cari user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Verifikasi password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Buat token
+    const token = jwt.sign(
+      { userId: user._id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Set cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: 'lax'
+    });
+
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      },
+      token
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging in', error: error.message });
+  }
+});
+
+// Logout
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logout successful' });
+});
+
+// Get current user
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user', error: error.message });
+  }
+});
+
+// ============= MEMBERS ROUTES =============
+
+// Get all members (public)
 app.get('/api/members', async (req, res) => {
   try {
     const members = await Member.find().sort({ createdAt: 1 });
@@ -56,7 +146,7 @@ app.get('/api/members', async (req, res) => {
   }
 });
 
-// Get single member
+// Get single member (public)
 app.get('/api/members/:id', async (req, res) => {
   try {
     const member = await Member.findById(req.params.id);
@@ -69,12 +159,11 @@ app.get('/api/members/:id', async (req, res) => {
   }
 });
 
-// Create new member
-app.post('/api/members', async (req, res) => {
+// Create new member (ADMIN ONLY)
+app.post('/api/members', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { name, description, tags, avatar, blog } = req.body;
     
-    // Validation
     if (!name || !description) {
       return res.status(400).json({ message: 'Name and description are required' });
     }
@@ -94,8 +183,8 @@ app.post('/api/members', async (req, res) => {
   }
 });
 
-// Update member
-app.put('/api/members/:id', async (req, res) => {
+// Update member (ADMIN ONLY)
+app.put('/api/members/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { name, description, tags, avatar, blog } = req.body;
     
@@ -121,8 +210,8 @@ app.put('/api/members/:id', async (req, res) => {
   }
 });
 
-// Delete member
-app.delete('/api/members/:id', async (req, res) => {
+// Delete member (ADMIN ONLY)
+app.delete('/api/members/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const member = await Member.findByIdAndDelete(req.params.id);
     
@@ -136,19 +225,9 @@ app.delete('/api/members/:id', async (req, res) => {
   }
 });
 
-// ==================== CONTEST ROUTES ====================
+// ============= CONTESTS ROUTES =============
 
-const contestSchema = new mongoose.Schema({
-  place: { type: Number, required: true },
-  event: { type: String, required: true },
-  year: { type: Number, required: true },
-  rating: { type: Number, required: true },
-  ctfPoints: { type: Number, required: true },
-}, { timestamps: true });
-
-const Contest = mongoose.model('Contest', contestSchema);
-
-// Get all contests
+// Get all contests (public)
 app.get('/api/contests', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
@@ -157,11 +236,12 @@ app.get('/api/contests', async (req, res) => {
       .limit(limit);
     res.json(contests);
   } catch (error) {
+    console.error('Fetch contests error:', error);
     res.status(500).json({ message: 'Error fetching contests', error: error.message });
   }
 });
 
-// Get single contest
+// Get single contest (public)
 app.get('/api/contests/:id', async (req, res) => {
   try {
     const contest = await Contest.findById(req.params.id);
@@ -170,16 +250,16 @@ app.get('/api/contests/:id', async (req, res) => {
     }
     res.json(contest);
   } catch (error) {
+    console.error('Fetch contest error:', error);
     res.status(500).json({ message: 'Error fetching contest', error: error.message });
   }
 });
 
-// Create new contest
-app.post('/api/contests', async (req, res) => {
+// Create new contest (ADMIN ONLY)
+app.post('/api/contests', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { place, event, year, rating, ctfPoints } = req.body;
     
-    // Validation
     if (!place || !event || !year || rating === undefined || ctfPoints === undefined) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -195,12 +275,13 @@ app.post('/api/contests', async (req, res) => {
     const savedContest = await contest.save();
     res.status(201).json(savedContest);
   } catch (error) {
+    console.error('Create contest error:', error);
     res.status(500).json({ message: 'Error creating contest', error: error.message });
   }
 });
 
-// Update contest
-app.put('/api/contests/:id', async (req, res) => {
+// Update contest (ADMIN ONLY)
+app.put('/api/contests/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { place, event, year, rating, ctfPoints } = req.body;
     
@@ -222,12 +303,13 @@ app.put('/api/contests/:id', async (req, res) => {
 
     res.json(contest);
   } catch (error) {
+    console.error('Update contest error:', error);
     res.status(500).json({ message: 'Error updating contest', error: error.message });
   }
 });
 
-// Delete contest
-app.delete('/api/contests/:id', async (req, res) => {
+// Delete contest (ADMIN ONLY)
+app.delete('/api/contests/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const contest = await Contest.findByIdAndDelete(req.params.id);
     
@@ -237,34 +319,25 @@ app.delete('/api/contests/:id', async (req, res) => {
 
     res.json({ message: 'Contest deleted successfully', contest });
   } catch (error) {
+    console.error('Delete contest error:', error);
     res.status(500).json({ message: 'Error deleting contest', error: error.message });
   }
 });
 
-// ===== POST ROUTES =====
+// ============= POSTS ROUTES =============
 
-const postSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  category: { type: String, required: true },
-  author: { type: String, required: true },
-  date: { type: Date, required: true },
-  description: { type: String, default: '' },
-  url: { type: String, default: '' }
-}, { timestamps: true });
-
-const Post = mongoose.model('Post', postSchema);
-
-// Get all posts
+// Get all posts (public)
 app.get('/api/posts', async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 });
     res.json(posts);
   } catch (error) {
+    console.error('Fetch posts error:', error);
     res.status(500).json({ message: 'Error fetching posts', error: error.message });
   }
 });
 
-// Get single post
+// Get single post (public)
 app.get('/api/posts/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -273,16 +346,16 @@ app.get('/api/posts/:id', async (req, res) => {
     }
     res.json(post);
   } catch (error) {
+    console.error('Fetch post error:', error);
     res.status(500).json({ message: 'Error fetching post', error: error.message });
   }
 });
 
-// Create new post
-app.post('/api/posts', async (req, res) => {
+// Create new post (ADMIN ONLY)
+app.post('/api/posts', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { title, category, author, date, description, url } = req.body;
     
-    // Validation
     if (!title || !category || !author) {
       return res.status(400).json({ message: 'Title, category, and author are required' });
     }
@@ -299,12 +372,13 @@ app.post('/api/posts', async (req, res) => {
     const savedPost = await post.save();
     res.status(201).json(savedPost);
   } catch (error) {
+    console.error('Create post error:', error);
     res.status(500).json({ message: 'Error creating post', error: error.message });
   }
 });
 
-// Update post
-app.put('/api/posts/:id', async (req, res) => {
+// Update post (ADMIN ONLY)
+app.put('/api/posts/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { title, category, author, date, description, url } = req.body;
     
@@ -327,12 +401,13 @@ app.put('/api/posts/:id', async (req, res) => {
 
     res.json(post);
   } catch (error) {
+    console.error('Update post error:', error);
     res.status(500).json({ message: 'Error updating post', error: error.message });
   }
 });
 
-// Delete post
-app.delete('/api/posts/:id', async (req, res) => {
+// Delete post (ADMIN ONLY)
+app.delete('/api/posts/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const post = await Post.findByIdAndDelete(req.params.id);
     
@@ -342,16 +417,24 @@ app.delete('/api/posts/:id', async (req, res) => {
 
     res.json({ message: 'Post deleted successfully', post });
   } catch (error) {
+    console.error('Delete post error:', error);
     res.status(500).json({ message: 'Error deleting post', error: error.message });
   }
 });
 
-// Health check
-app.get('/health', (req, res) => {
+// Health check route
+app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`MongoDB: ${process.env.MONGODB_URI}`);
 });

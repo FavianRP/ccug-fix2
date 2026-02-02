@@ -43,3 +43,5 @@ next-env.d.ts
 # node_modules di ccug-backend
 /ccug-backend/node_modules/
 /ccug-backend/.env
+
+/ccug-frontend/node_modules/
