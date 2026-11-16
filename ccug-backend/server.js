@@ -3,6 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
@@ -14,66 +16,44 @@ const { authenticateToken, requireAdmin, JWT_SECRET } = require('./middleware/au
 
 const app = express();
 
+// Security Headers via Helmet
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// Rate limiting for auth endpoints (prevent brute force)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 10 login attempts per IP per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many login attempts. Please try again after 15 minutes.' }
+});
+
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000','https://ccug.gunadarma.ac.id'],
+  origin: ['http://localhost:3000', 'https://ccug.gunadarma.ac.id'],
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 
 // Ambil dari environment variable yang dikirim Docker Compose
 const mongoURI = process.env.MONGODB_URI;
 
-console.log('Attempting to connect to:', mongoURI);
+console.log('Attempting to connect to MongoDB...');
 
 mongoose.connect(mongoURI)
-  .then(() => console.log('MongoDB connected successfully to', mongoURI))
+  .then(() => console.log('MongoDB connected successfully'))
   .catch(err => {
     console.error('MongoDB connection error details:');
-    console.error('URI used:', mongoURI);
-    console.error('Error:', err);
+    console.error('Error:', err.message);
   });
 
 // ============= AUTH ROUTES =============
 
-// Register (untuk membuat user pertama)
-app.post('/api/auth/register', async (req, res) => {
-  try {
-    const { username, email, password, role } = req.body;
-
-    // Validasi
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    // Cek apakah user sudah ada
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Buat user baru
-    const user = new User({
-      username,
-      email,
-      password: hashedPassword,
-      role: role || 'user'
-    });
-
-    await user.save();
-
-    res.status(201).json({ message: 'User registered successfully', userId: user._id });
-  } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error: error.message });
-  }
-});
-
 // Login
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -104,6 +84,7 @@ app.post('/api/auth/login', async (req, res) => {
     // Set cookie
     res.cookie('token', token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       sameSite: 'lax'
     });
