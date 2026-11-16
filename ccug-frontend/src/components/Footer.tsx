@@ -38,11 +38,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/#core-team" className="hover:text-white transition">
-                  Core Team
-                </Link>
-              </li>
-              <li>
                 <Link href="/members" className="hover:text-white transition">
                   Roster Directory
                 </Link>

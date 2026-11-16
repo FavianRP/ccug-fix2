@@ -13,7 +13,6 @@ export default function Navbar() {
   const links = [
     { label: 'Home', href: '/' },
     { label: 'About', href: '/#about' },
-    { label: 'Core Team', href: '/#core-team' },
     { label: 'Roster', href: '/members' },
     { label: 'Writeups', href: '/posts' },
     { label: 'Trophies', href: '/#record' },
