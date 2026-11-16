@@ -10,11 +10,26 @@ const memberSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  tags: {
-    type: [String],
-    default: []
-  },
+  tags: [{
+    type: String
+  }],
   avatar: {
+    type: String,
+    default: ''
+  },
+  joinDate: {
+    type: String,
+    default: ''
+  },
+  github: {
+    type: String,
+    default: ''
+  },
+  linkedin: {
+    type: String,
+    default: ''
+  },
+  ctftime: {
     type: String,
     default: ''
   },

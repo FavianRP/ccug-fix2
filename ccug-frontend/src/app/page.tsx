@@ -1,114 +1,322 @@
-import { Rss } from 'lucide-react';
-import Link from 'next/link';
+'use client';
+
 import Image from 'next/image';
+import Link from 'next/link';
+import {
+  ArrowUpRight,
+  ArrowRight,
+  MapPin,
+  Calendar,
+  BookOpen,
+  Award,
+  Users,
+  Shield,
+  Code2,
+  Terminal,
+  Flag,
+} from 'lucide-react';
+
+const TIMELINE = [
+  {
+    year: 'MAY 2017',
+    title: 'Genesis of CCUG',
+    desc: 'Founded by three passionate computer science students aiming to represent Universitas Gunadarma in competitive collegiate CTFs.',
+  },
+  {
+    year: '2018 - 2019',
+    title: 'National Recognition',
+    desc: 'Secured podium finishes across major national cybersecurity competitions including Slashroot Bali and Amikom Hackfest.',
+  },
+  {
+    year: '2020',
+    title: 'Championship Finalists',
+    desc: 'Podium runners-up at COMPFEST XII CTF (Universitas Indonesia), finalists at Cyber Jawara National and KKSTNI AD.',
+  },
+  {
+    year: '2024 - PRESENT',
+    title: 'New Generation Active Roster',
+    desc: 'Active competition lineup (tiramisaks, zennova, kyouraa, Vortaile) continuing the research legacy in binary exploitation, web, and forensics.',
+  },
+];
+
+const PILLARS = [
+  {
+    icon: Terminal,
+    title: 'Binary & Reverse Engineering',
+    desc: 'Low-level vulnerability research, memory corruption exploitation, assembly analysis, and executable reverse engineering.',
+  },
+  {
+    icon: Code2,
+    title: 'Web & Cryptographic Security',
+    desc: 'Auditing complex modern web applications, API security flaws, and applied mathematical cryptanalysis of encryption schemes.',
+  },
+  {
+    icon: Shield,
+    title: 'Digital Forensics & Incident Triage',
+    desc: 'Dissecting memory dumps with Volatility, investigating network packet streams (PCAP), and Open Source Intelligence (OSINT).',
+  },
+];
 
 export default function Home() {
   return (
-    <div>
-  {/* Hero Section */}
-<section className="relative min-h-screen flex items-center justify-center px-4">
-  <div className="container mx-auto px-4 sm:px-6 py-24 sm:py-36 text-center">
-    <h1 className="text-xl sm:text-2xl md:text-4xl font-bold mb-6 sm:mb-8 italic">
-      Cyber Community Universitas Gunadarma
-    </h1>
-    
-    {/* Logo/Image */}
-    <div className="flex justify-center mb-6 sm:mb-8">
-      <div className="w-48 h-48 sm:w-64 sm:h-64 relative">
-        <div className="w-full h-full rounded-lg overflow-hidden">
-          <img 
-            src="/img/ccug-gif.gif" 
-            alt="Logo" 
-            className="w-full h-full object-cover"
-          />
+    <div className="space-y-28 pb-28">
+      {/* Hero Section with Ambient Glow and Floating Animations */}
+      <section className="relative overflow-hidden border-b border-[#262626] bg-gradient-to-b from-[#0a0a0a] via-[#050505] to-[#000000]">
+        {/* Subtle Ambient Radial Backlight */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-white/[0.03] blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 font-mono text-xs text-[#a3a3a3] border border-[#262626] rounded-full px-4 py-1.5 bg-[#111111]/80 backdrop-blur-sm">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                <span>Universitas Gunadarma • Jakarta, Indonesia</span>
+              </div>
+
+              <h1 className="font-heading text-5xl sm:text-7xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.04]">
+                Cyber Community <br />
+                <span className="text-[#a3a3a3]">Universitas Gunadarma</span>
+              </h1>
+
+              <p className="text-[#a3a3a3] text-base sm:text-lg max-w-xl font-sans leading-relaxed">
+                Official collegiate cybersecurity research team and premier competitive Capture The
+                Flag (CTF) organization of Universitas Gunadarma, Jakarta, Indonesia.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-2 font-heading text-sm font-bold">
+                <a
+                  href="https://pendaftaran.ccug.gunadarma.ac.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-black rounded-full hover:bg-[#e5e5e5] transition shadow-lg hover:shadow-white/10"
+                >
+                  <span>Join CCUG</span>
+                  <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+                </a>
+
+                <Link
+                  href="/members"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#333333] hover:border-white text-white rounded-full bg-[#141414] hover:bg-[#1f1f1f] transition"
+                >
+                  <span>Meet the Members</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <Link
+                  href="/posts"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#333333] hover:border-white text-[#a3a3a3] hover:text-white rounded-full transition"
+                >
+                  <span>Read Writeups</span>
+                  <BookOpen className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {/* Stats Bar */}
+              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-[#262626] max-w-lg">
+                <div>
+                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                    2017
+                  </div>
+                  <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
+                    Established
+                  </div>
+                </div>
+                <div>
+                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                    20+
+                  </div>
+                  <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
+                    National Titles
+                  </div>
+                </div>
+                <div>
+                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                    100%
+                  </div>
+                  <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
+                    Student Run
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Col: 3D Crest with Floating Animation */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+              <div className="w-full max-w-md aspect-square bg-[#0e0e0e] border border-[#262626] rounded-3xl p-8 flex flex-col justify-between relative shadow-2xl overflow-hidden group hover:border-[#383838] transition duration-500">
+                <div className="flex items-center justify-between font-mono text-[11px] text-[#737373] uppercase">
+                  <span>Official Insignia</span>
+                  <span>Est. May 2017</span>
+                </div>
+
+                {/* 3D GIF Animation */}
+                <div className="relative w-64 h-64 mx-auto my-auto flex items-center justify-center animate-bounce-slow">
+                  <Image
+                    src="/img/3dgifmaker16954.gif"
+                    alt="CCUG 3D Crest"
+                    width={260}
+                    height={260}
+                    className="object-contain drop-shadow-[0_15px_25px_rgba(255,255,255,0.06)]"
+                    unoptimized
+                    priority
+                  />
+                </div>
+
+                <div className="pt-4 border-t border-[#262626] flex items-center justify-between font-mono text-[11px] text-[#737373]">
+                  <span>Universitas Gunadarma</span>
+                  <span>Jakarta, Indonesia</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    
-    <p className="text-sm sm:text-md md:text-xl text-ccug-gray mb-3 sm:mb-4">
-      CTF Team Universitas Gunadarma
-    </p>
-    
-    <h2 className="text-lg sm:text-xl md:text-2xl text-ccug-gray mb-6 sm:mb-8">
-      Tim Akademik Universitas Gunadarma
-    </h2>
-    
-    <p className="text-sm sm:text-base text-gray-400 mb-8 sm:mb-12 px-4">
-      Contact us at{' '}
-      <a 
-        href="mailto:cycomug@gmail.com" 
-        className="text-ccug-purple hover:underline break-all"
-      >
-        cycomug@gmail.com
-      </a>
-      {' '}(for business inquiries, event invitation, etc.)
-    </p>
-  </div>
-</section>
+      </section>
 
+      {/* About Us: Vision & Story */}
+      <section id="about" className="max-w-7xl mx-auto px-6">
+        <div className="border border-[#262626] bg-[#0c0c0c] rounded-3xl p-8 sm:p-14 space-y-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-5 space-y-3">
+              <div className="font-mono text-xs text-[#737373] uppercase tracking-widest">
+                Our Foundation
+              </div>
+              <h2 className="font-heading text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                About Cyber Community Gunadarma
+              </h2>
+            </div>
+            <div className="lg:col-span-7 space-y-4 text-[#a3a3a3] font-sans text-base leading-relaxed">
+              <p>
+                Cyber Community Universitas Gunadarma (CCUG) was formed in May 2017 by three
+                forward-thinking undergraduate students: <strong>Ravi Dharmawan</strong>,{' '}
+                <strong>Muhammad Fadel Maulana</strong>, and <strong>Jibril Hartri Putra</strong>.
+              </p>
+              <p>
+                Motivated by the ambition to see Gunadarma students compete head-to-head with the
+                nation's finest university teams in competitive Capture The Flag (CTF) events, CCUG
+                was born as an elite academic community and student-led security research lab.
+              </p>
+              <p className="text-white font-medium pt-2">
+                Today, CCUG represents Universitas Gunadarma on regional and global leaderboards,
+                cultivating expertise in binary exploitation, reverse engineering, web security, and
+                forensics.
+              </p>
+            </div>
+          </div>
 
-{/* Content Section */}
-<div id="about-section" className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-  <div className="max-w-7xl mx-auto">
-    {/* Section Header */}
-    <div className="flex items-center gap-3 mb-6 sm:mb-8">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">About CCUG</h2>
-      <Rss className="w-6 h-6 sm:w-8 sm:h-8 text-ccug-purple" />
-    </div>
+          {/* Research Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-[#262626]">
+            {PILLARS.map((pillar, i) => {
+              const Icon = pillar.icon;
+              return (
+                <div
+                  key={i}
+                  className="bg-[#111111] border border-[#222222] rounded-2xl p-6 space-y-3 hover:border-[#383838] transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#181818] border border-[#2e2e2e] flex items-center justify-center text-white">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-heading text-xl font-bold text-white tracking-tight">
+                    {pillar.title}
+                  </h3>
+                  <p className="font-sans text-xs text-[#a3a3a3] leading-relaxed">
+                    {pillar.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-    <div className="border-b border-ccug-gray/50 mb-8 sm:mb-12"></div>
+      {/* History Timeline */}
+      <section className="max-w-7xl mx-auto px-6">
+        <div className="space-y-8">
+          <div className="space-y-1">
+            <div className="font-mono text-xs text-[#737373] uppercase tracking-widest">
+              Milestones
+            </div>
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+              The Journey of CCUG
+            </h2>
+          </div>
 
-    {/* Gambar di tengah */}
-    <div className="flex justify-center mb-8 sm:mb-12">
-      <Image
-        src="/img/CCUG_Logo_with_Text.png"
-        alt="CCUG Team"
-        width={200}
-        height={100}
-        className="rounded-lg object-cover w-40 sm:w-48 md:w-56 h-auto"
-      />
-    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {TIMELINE.map((item, i) => (
+              <div
+                key={i}
+                className="bg-[#0c0c0c] border border-[#262626] rounded-2xl p-6 space-y-3 hover:border-white transition-colors"
+              >
+                <div className="font-mono text-xs font-bold text-white tracking-wider border-b border-[#262626] pb-2">
+                  {item.year}
+                </div>
+                <h3 className="font-heading text-lg font-bold text-white tracking-tight">
+                  {item.title}
+                </h3>
+                <p className="font-sans text-xs text-[#a3a3a3] leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-    <div className="space-y-6 sm:space-y-8 text-justify text-ccug-gray">
-      <p className="text-base sm:text-lg leading-relaxed">
-        Cyber Community Universitas Gunadarma (CCUG) pada awalnya didirikan oleh tiga mahasiswa Universitas Gunadarma pada bulan Mei 2017, 
-        yaitu: Ravi Dharmawan (TI 2015), Muhammad Fadel Maulana (TI 2015), dan Jibril Hartri Putra (SI 2015). Keresahan Ravi, Fadel, dan 
-        Jibril melihat kampus lain yang aktif mengikuti lomba keamanan siber CTF, membuat mereka berinisiatif untuk berpartisipasi pada 
-        lomba CTF. Sejak saat itu, CCUG mulai terbentuk dan ikut aktif mengikuti perlombaan CTF nasional dan internasional.
-      </p>
+      {/* Dedicated Team Members Callout (Dedicated Page Bridge) */}
+      <section className="max-w-7xl mx-auto px-6">
+        <div className="bg-[#0e0e0e] border border-[#262626] rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 hover:border-[#383838] transition">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="font-mono text-xs text-[#737373] uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start">
+              <Users className="w-3.5 h-3.5 text-white" />
+              <span>Full Team Roster & Alumni Directory</span>
+            </div>
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+              Meet Our Active Roster & Alumni
+            </h2>
+            <p className="text-[#a3a3a3] font-sans text-sm max-w-xl">
+              Discover all CCUG active players (tiramisaks, zennova, kyouraa, Vortaile) and
+              founding alumni with their expertise areas, join dates, and social links on the
+              dedicated Members page.
+            </p>
+          </div>
 
-      <div className="flex justify-center mb-8 sm:mb-12">
-        <Image
-          src="/img/pendiri_dan_dosen.png"
-          alt="CCUG Team"
-          width={300}
-          height={200}
-          className="rounded-lg object-cover w-full sm:w-80 md:w-96 h-auto"
-        />
-      </div>
+          <Link
+            href="/members"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-heading text-sm font-bold uppercase tracking-wider rounded-full hover:bg-[#e5e5e5] transition shrink-0 shadow-lg"
+          >
+            <span>Open Members Directory</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
 
-      <figcaption className="text-xs sm:text-sm leading-relaxed text-center text-ccug-gray">
-        Pendiri CCUG & Dosen Pembimbing CCUG
-      </figcaption>
+      {/* Call To Action: Join & Contact */}
+      <section className="max-w-7xl mx-auto px-6">
+        <div className="bg-white text-black rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#737373]">
+              Be Part of Gunadarma CTF
+            </div>
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight leading-none">
+              Interested in Cyber Security?
+            </h2>
+            <p className="text-neutral-700 font-sans text-sm sm:text-base max-w-xl">
+              Register through the official Gunadarma CTF recruitment portal to take part in
+              internal challenges and annual HackFest qualifiers.
+            </p>
+          </div>
 
-      <p className="text-base sm:text-lg leading-relaxed">
-        Sejak tim CCUG terbentuk, kami perlahan menjadi tim akademis resmi Universitas Gunadarma yang berfokus pada kompetisi keamanan siber. 
-        Kami terdiri dari mahasiswa aktif Universitas Gunadarma dan dibimbing oleh Dr. Mochammad Akbar Marwan S.T., M.M.S.I.
-
-      </p>
-
-      <p className="text-base sm:text-lg leading-relaxed">
-        Tidak ada kewajiban tiap anggota kami untuk berpartisipasi secara rutin kompetisi CTF, dan kami santai akan persaingan dengan tetap fokus belajar dan bersenang-senang. 
-        Meskipun begitu, kami tetap serius ketika dalam kompetisi dan berlomba mendapatkan flag sebanyak-banyaknya!
-        Pada kompetisi internasional, kami biasa bermain pada CTF yang tersedia di CTFTime, ranking internasional kami dapat diakses melalui
-        <a href="https://ctftime.org/team/45168" className='text-ccug-purple'> ctftime.org.</a>
-      </p>
-    </div>
-
-    <div className="border-b border-ccug-gray/50 my-8 sm:my-12"></div>
-  </div>
-</div>
-
+          <a
+            href="https://pendaftaran.ccug.gunadarma.ac.id"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-heading text-xs font-bold uppercase tracking-wider rounded-full hover:bg-neutral-900 transition shrink-0 shadow-lg"
+          >
+            <span>Join CCUG Portal</span>
+            <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+          </a>
+        </div>
+      </section>
     </div>
   );
 }

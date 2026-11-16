@@ -2,21 +2,35 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Inter, Roboto_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from 'next/font/google';
 
-// Inter untuk teks utama
-const inter = Inter({ subsets: ['latin'], weight: ['400','500','700'] });
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-heading',
+  display: 'swap',
+});
 
-// Roboto Mono untuk monospace / code
-const robotoMono = Roboto_Mono({ subsets: ['latin'], weight: ['400','700'] });
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: 'Cyber Community Universitas Gunadarma',
-  description: 'Tim Akademik Universitas Gunadarma',
+  title: 'TEAM CCUG | Cyber Community Universitas Gunadarma',
+  description: 'Collegiate Cybersecurity & CTF Team • Universitas Gunadarma, Jakarta, Indonesia',
   icons: {
-    icon: "/ccug.png",
-    shortcut: "/ccug.png",
-    apple: "/ccug.png",
+    icon: '/img/ccug_copy.png',
+    shortcut: '/img/ccug_copy.png',
+    apple: '/img/ccug_copy.png',
   },
 };
 
@@ -26,13 +40,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      {/* Terapkan Inter sebagai font utama */}
-      <body className={inter.className}>
+    <html
+      lang="en"
+      className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="bg-black text-white antialiased font-sans selection:bg-white selection:text-black min-h-screen flex flex-col">
         <Navbar />
-        <main className="pt-20 min-h-screen">
-          {children}
-        </main>
+        <main className="flex-1 pt-20">{children}</main>
         <Footer />
       </body>
     </html>

@@ -16,16 +16,24 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000','https://ccug.gunadarma.ac.id'],
   credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
 
-// MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/ccug')
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Ambil dari environment variable yang dikirim Docker Compose
+const mongoURI = process.env.MONGODB_URI;
+
+console.log('Attempting to connect to:', mongoURI);
+
+mongoose.connect(mongoURI)
+  .then(() => console.log('MongoDB connected successfully to', mongoURI))
+  .catch(err => {
+    console.error('MongoDB connection error details:');
+    console.error('URI used:', mongoURI);
+    console.error('Error:', err);
+  });
 
 // ============= AUTH ROUTES =============
 
