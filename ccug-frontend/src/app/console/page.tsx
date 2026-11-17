@@ -23,6 +23,8 @@ import {
   Linkedin,
   Flag,
   ArrowRight,
+  Code2,
+  FileCode,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -103,6 +105,12 @@ export default function AdminConsolePage() {
   // Member Filter State
   const [memberFilterType, setMemberFilterType] = useState<'all' | 'active' | 'alumni' | 'founder'>('all');
   const [memberSearch, setMemberSearch] = useState('');
+
+  // JSON Import Modal State
+  const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [jsonImportError, setJsonImportError] = useState<string | null>(null);
+  const [jsonImportLoading, setJsonImportLoading] = useState(false);
 
   // Modals
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
@@ -265,6 +273,33 @@ export default function AdminConsolePage() {
     localStorage.removeItem('user');
     setIsAuthenticated(false);
     setCurrentUser(null);
+  };
+
+  const handleImportJson = async () => {
+    setJsonImportError(null);
+    setJsonImportLoading(true);
+    try {
+      const parsed = JSON.parse(jsonInput);
+      const res = await fetch('/api/members', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(parsed),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Import failed');
+      }
+
+      setIsJsonModalOpen(false);
+      setJsonInput('');
+      loadAllData();
+      alert('Successfully imported member(s)!');
+    } catch (err: any) {
+      setJsonImportError(err.message || 'Invalid JSON format');
+    } finally {
+      setJsonImportLoading(false);
+    }
   };
 
   // =================== MEMBER ACTIONS ===================
@@ -711,13 +746,26 @@ export default function AdminConsolePage() {
 
           <div>
             {activeTab === 'members' && (
-              <button
-                onClick={openAddMemberModal}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl font-heading text-xs font-bold uppercase tracking-wider hover:bg-[#e5e5e5] transition shadow-md"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Member</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setJsonImportError(null);
+                    setJsonInput('');
+                    setIsJsonModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#141414] hover:bg-[#1f1f1f] border border-[#333333] hover:border-white text-white rounded-xl font-heading text-xs font-bold uppercase tracking-wider transition"
+                >
+                  <Code2 className="w-4 h-4" />
+                  <span>Import JSON</span>
+                </button>
+                <button
+                  onClick={openAddMemberModal}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl font-heading text-xs font-bold uppercase tracking-wider hover:bg-[#e5e5e5] transition shadow-md"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Member</span>
+                </button>
+              </div>
             )}
             {activeTab === 'posts' && (
               <button
@@ -1260,6 +1308,103 @@ export default function AdminConsolePage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ===================== MODAL: JSON IMPORT ===================== */}
+      {isJsonModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[#0c0c0c] border border-[#262626] rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-[#262626]">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-[#141414] border border-[#262626] text-white">
+                  <Code2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-white">Import Members via JSON</h3>
+                  <p className="font-mono text-xs text-[#737373]">Single object or array of member objects</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsJsonModalOpen(false)}
+                className="text-[#737373] hover:text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {jsonImportError && (
+              <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-800/60 text-red-200 text-xs flex items-center gap-2 font-sans">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                <span>{jsonImportError}</span>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="font-mono text-xs text-[#a3a3a3] uppercase flex items-center justify-between">
+                <span>Paste JSON Content</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setJsonInput(
+                      JSON.stringify(
+                        [
+                          {
+                            name: "HandleName",
+                            description: "Reverse Engineering • Binary Exploitation",
+                            tags: ["Active", "Reverse", "PWN"],
+                            joinDate: "Oct 2024",
+                            avatar: "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg",
+                            linkedin: "https://linkedin.com/in/username",
+                            github: "https://github.com/username",
+                            ctftime: "https://ctftime.org/team/45168",
+                            blog: true
+                          }
+                        ],
+                        null,
+                        2
+                      )
+                    )
+                  }
+                  className="text-xs text-white hover:underline lowercase font-sans font-normal"
+                >
+                  Insert template
+                </button>
+              </label>
+              <textarea
+                rows={12}
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder={`[\n  {\n    "name": "MemberHandle",\n    "description": "Reverse Engineering • Binary Exploitation",\n    "tags": ["Active", "Reverse", "PWN"],\n    "joinDate": "Oct 2024",\n    "avatar": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg",\n    "linkedin": "https://linkedin.com/in/username",\n    "github": "https://github.com/username",\n    "ctftime": "https://ctftime.org/team/45168",\n    "blog": true\n  }\n]`}
+                className="w-full bg-[#141414] border border-[#262626] focus:border-white rounded-xl p-4 text-xs font-mono text-white placeholder-[#404040] outline-none transition resize-none leading-relaxed"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#262626]">
+              <button
+                type="button"
+                onClick={() => setIsJsonModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl border border-[#262626] text-[#a3a3a3] hover:text-white transition font-mono text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={jsonImportLoading || !jsonInput.trim()}
+                onClick={handleImportJson}
+                className="px-6 py-2.5 bg-white text-black font-heading text-xs font-bold uppercase rounded-xl hover:bg-[#e5e5e5] transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {jsonImportLoading ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    <span>Importing...</span>
+                  </>
+                ) : (
+                  <span>Import JSON</span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

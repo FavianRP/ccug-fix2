@@ -155,9 +155,30 @@ app.get('/api/members/:id', async (req, res) => {
   }
 });
 
-// Create new member (ADMIN ONLY)
+// Create new member(s) (ADMIN ONLY) - supports single object or bulk JSON array
 app.post('/api/members', authenticateToken, requireAdmin, async (req, res) => {
   try {
+    if (Array.isArray(req.body)) {
+      const membersToInsert = req.body.map(item => ({
+        name: item.name,
+        description: item.description,
+        tags: item.tags || [],
+        avatar: item.avatar || '',
+        joinDate: item.joinDate || '',
+        github: item.github || '',
+        linkedin: item.linkedin || '',
+        ctftime: item.ctftime || '',
+        blog: Boolean(item.blog)
+      })).filter(m => m.name && m.description);
+
+      if (membersToInsert.length === 0) {
+        return res.status(400).json({ message: 'No valid members found in JSON array (name and description required)' });
+      }
+
+      const savedMembers = await Member.insertMany(membersToInsert);
+      return res.status(201).json(savedMembers);
+    }
+
     const { name, description, tags, avatar, joinDate, github, linkedin, ctftime, blog } = req.body;
     
     if (!name || !description) {
