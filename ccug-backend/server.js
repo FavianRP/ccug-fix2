@@ -59,9 +59,9 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, username, password, identifier } = req.body;
     const loginId = identifier || email || username;
 
-    // Validasi
-    if (!loginId || !password) {
-      return res.status(400).json({ message: 'Username/Email and password are required' });
+    // Strict input validation (prevent NoSQL injection or object payload)
+    if (!loginId || !password || typeof loginId !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Valid username/email and password are required' });
     }
 
     // Cari user berdasarkan email atau username
