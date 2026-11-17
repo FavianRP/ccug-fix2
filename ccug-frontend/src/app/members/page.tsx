@@ -160,8 +160,8 @@ export default function MembersPage() {
       };
 
       const endpoint = editingMember
-        ? `http://localhost:5000/api/members/${editingMember._id}`
-        : 'http://localhost:5000/api/members';
+        ? `/api/members/${editingMember._id}`
+        : '/api/members';
 
       const res = await fetch(endpoint, {
         method: editingMember ? 'PUT' : 'POST',
@@ -193,7 +193,7 @@ export default function MembersPage() {
   const handleDelete = async () => {
     if (!deletingMember) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/members/${deletingMember._id}`, {
+      const res = await fetch(`/api/members/${deletingMember._id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });

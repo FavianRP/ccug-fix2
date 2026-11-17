@@ -121,8 +121,8 @@ export default function PostsPage() {
       };
 
       const endpoint = editingPost
-        ? `http://localhost:5000/api/posts/${editingPost._id}`
-        : 'http://localhost:5000/api/posts';
+        ? `/api/posts/${editingPost._id}`
+        : '/api/posts';
 
       const res = await fetch(endpoint, {
         method: editingPost ? 'PUT' : 'POST',
@@ -144,7 +144,7 @@ export default function PostsPage() {
   const handleDelete = async () => {
     if (!deletingPost) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/posts/${deletingPost._id}`, {
+      const res = await fetch(`/api/posts/${deletingPost._id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });

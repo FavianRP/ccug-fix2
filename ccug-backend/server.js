@@ -55,15 +55,21 @@ mongoose.connect(mongoURI)
 // Login
 app.post('/api/auth/login', authLimiter, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, username, password, identifier } = req.body;
+    const loginId = identifier || email || username;
 
     // Validasi
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    if (!loginId || !password) {
+      return res.status(400).json({ message: 'Username/Email and password are required' });
     }
 
-    // Cari user
-    const user = await User.findOne({ email });
+    // Cari user berdasarkan email atau username
+    const user = await User.findOne({
+      $or: [
+        { email: loginId.trim().toLowerCase() },
+        { username: loginId.trim() }
+      ]
+    });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -151,7 +157,7 @@ app.get('/api/members/:id', async (req, res) => {
 // Create new member (ADMIN ONLY)
 app.post('/api/members', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const { name, description, tags, avatar, blog } = req.body;
+    const { name, description, tags, avatar, joinDate, github, linkedin, ctftime, blog } = req.body;
     
     if (!name || !description) {
       return res.status(400).json({ message: 'Name and description are required' });
@@ -162,7 +168,11 @@ app.post('/api/members', authenticateToken, requireAdmin, async (req, res) => {
       description,
       tags: tags || [],
       avatar: avatar || '',
-      blog: blog || false
+      joinDate: joinDate || '',
+      github: github || '',
+      linkedin: linkedin || '',
+      ctftime: ctftime || '',
+      blog: Boolean(blog)
     });
 
     const savedMember = await member.save();
@@ -175,7 +185,7 @@ app.post('/api/members', authenticateToken, requireAdmin, async (req, res) => {
 // Update member (ADMIN ONLY)
 app.put('/api/members/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const { name, description, tags, avatar, blog } = req.body;
+    const { name, description, tags, avatar, joinDate, github, linkedin, ctftime, blog } = req.body;
     
     const member = await Member.findByIdAndUpdate(
       req.params.id,
@@ -184,7 +194,11 @@ app.put('/api/members/:id', authenticateToken, requireAdmin, async (req, res) =>
         description,
         tags: tags || [],
         avatar: avatar || '',
-        blog: blog || false
+        joinDate: joinDate || '',
+        github: github || '',
+        linkedin: linkedin || '',
+        ctftime: ctftime || '',
+        blog: Boolean(blog)
       },
       { new: true, runValidators: true }
     );

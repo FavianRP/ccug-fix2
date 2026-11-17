@@ -1,29 +1,47 @@
-// createAdmin.js
+require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 
-mongoose.connect('mongodb://localhost:27017/ccug')
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ccug';
+
+const username = process.argv[2] || 'CCUG';
+const email = (process.argv[3] || 'admin@ccug.gunadarma.ac.id').toLowerCase();
+const password = process.argv[4] || 'ctf_pasti_bisa';
+
+mongoose.connect(mongoURI)
   .then(async () => {
     console.log('Connected to MongoDB');
     
-    const hashedPassword = await bcrypt.hash('ccugSecretAdmin', 10);
-    
-    const admin = new User({
-      username: 'adminCCUG',
-      email: 'admin@cybercomug.com',
-      password: hashedPassword,
-      role: 'admin'
-    });
+    // Check if user already exists
+    const existing = await User.findOne({ $or: [{ email }, { username }] });
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    await admin.save();
-    console.log('✅ Admin user created!');
-    console.log('Email: admin@cybercomug.com');
-    console.log('Password: ccugSecretAdmin');
+    if (existing) {
+      existing.username = username;
+      existing.email = email;
+      existing.password = hashedPassword;
+      existing.role = 'admin';
+      await existing.save();
+      console.log('✅ Admin user updated successfully:');
+    } else {
+      const admin = new User({
+        username,
+        email,
+        password: hashedPassword,
+        role: 'admin'
+      });
+      await admin.save();
+      console.log('✅ Admin user created successfully:');
+    }
+
+    console.log('Username:', username);
+    console.log('Email:', email);
+    console.log('Role: admin');
     
     process.exit(0);
   })
   .catch(err => {
-    console.error('Error:', err);
+    console.error('Error connecting to MongoDB:', err.message);
     process.exit(1);
   });
