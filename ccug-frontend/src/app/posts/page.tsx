@@ -213,16 +213,19 @@ export default function PostsPage() {
 
       {/* Posts List */}
       {isLoading ? (
-        <div className="py-24 text-center font-mono text-xs text-muted">
+        <div className="py-24 text-center font-mono text-xs text-[#737373]">
           LOADING WRITEUPS & POSTS...
         </div>
       ) : error ? (
-        <div className="p-6 border border-borderline bg-surface font-mono text-xs text-secondary rounded-2xl">
+        <div className="p-6 border border-[#262626] bg-[#0c0c0c] font-mono text-xs text-[#a3a3a3] rounded-2xl">
           {error}
         </div>
       ) : posts.length === 0 ? (
-        <div className="py-24 text-center font-mono text-xs text-muted">
-          NO POSTS PUBLISHED YET.
+        <div className="py-28 text-center space-y-4 border border-[#262626] rounded-2xl bg-[#0a0a0a]">
+          <div className="font-mono text-4xl text-[#404040] select-none font-light">—</div>
+          <p className="font-mono text-xs text-[#737373] tracking-widest uppercase">
+            No writeups published yet
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
