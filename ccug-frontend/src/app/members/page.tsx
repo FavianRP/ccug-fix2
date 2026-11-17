@@ -205,23 +205,48 @@ export default function MembersPage() {
     }
   };
 
-  // Filter logic
-  const filtered = members.filter((m) => {
-    const matchesSearch =
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    if (!matchesSearch) return false;
-
-    if (activeTab === 'active') {
-      return m.tags.some((t) => t.toLowerCase() === 'active');
+  // Parse joinDate string to timestamp for sorting (earliest/oldest first)
+  const parseJoinDate = (dateStr?: string): number => {
+    if (!dateStr) return 9999999999999;
+    const trimmed = dateStr.trim();
+    // Check if format is just year, e.g. "2022"
+    if (/^\d{4}$/.test(trimmed)) {
+      return new Date(`${trimmed}-01-01`).getTime();
     }
-    if (activeTab === 'alumni') {
-      return m.tags.some((t) => t.toLowerCase() === 'alumni' || t.toLowerCase() === 'founder');
-    }
-    return true;
-  });
+    // Attempt standard parse, e.g. "May 2017", "Oct 2024"
+    const parsed = Date.parse(`1 ${trimmed}`);
+    if (!isNaN(parsed)) return parsed;
+    const directParsed = Date.parse(trimmed);
+    if (!isNaN(directParsed)) return directParsed;
+    return 9999999999999;
+  };
+
+  // Filter & sort logic (ordered by oldest join date first)
+  const filtered = members
+    .filter((m) => {
+      const matchesSearch =
+        m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      if (!matchesSearch) return false;
+
+      if (activeTab === 'active') {
+        return m.tags.some((t) => t.toLowerCase() === 'active');
+      }
+      if (activeTab === 'alumni') {
+        return m.tags.some((t) => t.toLowerCase() === 'alumni' || t.toLowerCase() === 'founder');
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const dateA = parseJoinDate(a.joinDate);
+      const dateB = parseJoinDate(b.joinDate);
+      if (dateA !== dateB) {
+        return dateA - dateB; // Oldest/earliest first
+      }
+      return a.name.localeCompare(b.name);
+    });
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 space-y-10">
