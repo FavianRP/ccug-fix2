@@ -221,7 +221,7 @@ app.get('/api/contests', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
     const contests = await Contest.find()
-      .sort({ rating: -1, place: 1 })
+      .sort({ year: -1, place: 1 })
       .limit(limit);
     res.json(contests);
   } catch (error) {

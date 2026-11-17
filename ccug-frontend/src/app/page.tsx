@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -14,7 +15,20 @@ import {
   Code2,
   Terminal,
   Flag,
+  Trophy,
 } from 'lucide-react';
+
+const FEATURED_TROPHIES = [
+  { place: '3rd Place', event: 'POLRICTF 2026', host: 'Kepolisian Negara Republik Indonesia', year: '2026', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
+  { place: 'Finalist', event: 'GEMASTIK 2026', host: 'Divisi Keamanan Siber • PUSPRESNAS', year: '2026', rankColor: 'text-[#81C995] bg-[#1e2a22] border-[#2e4c34]' },
+  { place: '3rd Place', event: 'FINDIT! 2023 CTF', host: 'Universitas Gadjah Mada', year: '2023', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
+  { place: '1st Place', event: 'Tech. Enthusiast Day 2022', host: 'Universitas Gadjah Mada', year: '2022', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
+  { place: '2nd Place', event: 'National Cyber Week 2022', host: 'Bina Nusantara', year: '2022', rankColor: 'text-[#78b3ea] bg-[#1c2834] border-[#28425a]' },
+  { place: '1st Place', event: 'TheLast CTF 2021', host: 'Helixs Crew National', year: '2021', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
+  { place: '1st Place', event: 'KKSTNI AD CTF 2021', host: 'Pusat Sandi dan Siber TNI AD', year: '2021', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
+  { place: '2nd Place', event: 'Gemastik XIV Keamanan Siber', host: 'PUSPRESNAS & Telkom University', year: '2021', rankColor: 'text-[#78b3ea] bg-[#1c2834] border-[#28425a]' },
+  { place: '2nd Place', event: 'COMPFEST 12 CTF', host: 'Universitas Indonesia', year: '2020', rankColor: 'text-[#78b3ea] bg-[#1c2834] border-[#28425a]' },
+];
 
 const TIMELINE = [
   {
@@ -258,6 +272,54 @@ export default function Home() {
                 <p className="font-sans text-xs text-[#a3a3a3] leading-relaxed">
                   {item.desc}
                 </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tournament Records & Trophies Showcase */}
+      <section id="record" className="max-w-7xl mx-auto px-6">
+        <div className="border border-[#262626] bg-[#0c0c0c] rounded-3xl p-8 sm:p-14 space-y-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#262626]">
+            <div className="space-y-3">
+              <div className="font-mono text-xs text-[#737373] uppercase tracking-widest flex items-center gap-2">
+                <Trophy className="w-3.5 h-3.5 text-white" />
+                <span>Honors & Competitive Record</span>
+              </div>
+              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                Tournament Record & Trophies
+              </h2>
+            </div>
+            <Link
+              href="/contests"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-[#333333] hover:border-white text-white rounded-full bg-[#141414] hover:bg-[#1f1f1f] transition text-xs font-heading font-bold uppercase tracking-wider shrink-0"
+            >
+              <span>View All 29+ Contests</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURED_TROPHIES.map((t, idx) => (
+              <div
+                key={idx}
+                className="bg-[#121212] border border-[#222222] hover:border-[#383838] rounded-2xl p-5 space-y-4 transition duration-300 group hover:-translate-y-1"
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`font-mono text-[11px] font-bold px-3 py-1 rounded-full border ${t.rankColor}`}
+                  >
+                    {t.place}
+                  </span>
+                  <span className="font-mono text-xs text-[#737373]">{t.year}</span>
+                </div>
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-white group-hover:text-white transition">
+                    {t.event}
+                  </h3>
+                  <p className="font-sans text-xs text-[#8a8a8a] mt-1">{t.host}</p>
+                </div>
               </div>
             ))}
           </div>
