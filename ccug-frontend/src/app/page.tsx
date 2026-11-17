@@ -191,7 +191,7 @@ export default function Home() {
 
       {/* About Us: Vision & Story */}
       <section id="about" className="max-w-7xl mx-auto px-6">
-        <div className="border border-[#262626] bg-[#0c0c0c] rounded-3xl p-8 sm:p-14 space-y-12">
+        <div className="border border-[#262626] bg-[#0c0c0c] rounded-3xl p-8 sm:p-14 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 space-y-3">
               <div className="font-mono text-xs text-[#737373] uppercase tracking-widest">
@@ -214,33 +214,9 @@ export default function Home() {
               </p>
               <p className="text-white font-medium pt-2">
                 Today, CCUG represents Universitas Gunadarma on regional and global leaderboards,
-                cultivating expertise in binary exploitation, reverse engineering, web security, and
-                forensics.
+                cultivating expertise across collegiate and professional cybersecurity tournaments.
               </p>
             </div>
-          </div>
-
-          {/* Research Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-[#262626]">
-            {PILLARS.map((pillar, i) => {
-              const Icon = pillar.icon;
-              return (
-                <div
-                  key={i}
-                  className="bg-[#111111] border border-[#222222] rounded-2xl p-6 space-y-3 hover:border-[#383838] transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-[#181818] border border-[#2e2e2e] flex items-center justify-center text-white">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-heading text-xl font-bold text-white tracking-tight">
-                    {pillar.title}
-                  </h3>
-                  <p className="font-sans text-xs text-[#a3a3a3] leading-relaxed">
-                    {pillar.desc}
-                  </p>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>
