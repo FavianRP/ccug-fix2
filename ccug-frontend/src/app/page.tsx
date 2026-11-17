@@ -19,15 +19,15 @@ import {
 } from 'lucide-react';
 
 const FEATURED_TROPHIES = [
-  { place: '3rd Place', event: 'POLRICTF 2026', host: 'Kepolisian Negara Republik Indonesia', year: '2026', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
-  { place: 'Finalist', event: 'GEMASTIK 2026', host: 'Divisi Keamanan Siber • PUSPRESNAS', year: '2026', rankColor: 'text-[#81C995] bg-[#1e2a22] border-[#2e4c34]' },
-  { place: '3rd Place', event: 'FINDIT! 2023 CTF', host: 'Universitas Gadjah Mada', year: '2023', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
-  { place: '1st Place', event: 'Tech. Enthusiast Day 2022', host: 'Universitas Gadjah Mada', year: '2022', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
-  { place: '2nd Place', event: 'National Cyber Week 2022', host: 'Bina Nusantara', year: '2022', rankColor: 'text-[#78b3ea] bg-[#1c2834] border-[#28425a]' },
-  { place: '1st Place', event: 'TheLast CTF 2021', host: 'Helixs Crew National', year: '2021', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
-  { place: '1st Place', event: 'KKSTNI AD CTF 2021', host: 'Pusat Sandi dan Siber TNI AD', year: '2021', rankColor: 'text-[#ffd54f] bg-[#2a2614] border-[#5e5320]' },
-  { place: '2nd Place', event: 'Gemastik XIV Keamanan Siber', host: 'PUSPRESNAS & Telkom University', year: '2021', rankColor: 'text-[#78b3ea] bg-[#1c2834] border-[#28425a]' },
-  { place: '2nd Place', event: 'COMPFEST 12 CTF', host: 'Universitas Indonesia', year: '2020', rankColor: 'text-[#78b3ea] bg-[#1c2834] border-[#28425a]' },
+  { place: '3rd Place', event: 'POLRICTF 2026', host: 'Kepolisian Negara Republik Indonesia', year: '2026', tag: 'PODIUM' },
+  { place: 'Finalist', event: 'GEMASTIK 2026', host: 'Divisi Keamanan Siber • PUSPRESNAS', year: '2026', tag: 'FINALIST' },
+  { place: '3rd Place', event: 'FINDIT! 2023 CTF', host: 'Universitas Gadjah Mada', year: '2023', tag: 'PODIUM' },
+  { place: '1st Place', event: 'Tech. Enthusiast Day 2022', host: 'Universitas Gadjah Mada', year: '2022', tag: 'WINNER' },
+  { place: '2nd Place', event: 'National Cyber Week 2022', host: 'Bina Nusantara', year: '2022', tag: 'PODIUM' },
+  { place: '1st Place', event: 'TheLast CTF 2021', host: 'Helixs Crew National', year: '2021', tag: 'WINNER' },
+  { place: '1st Place', event: 'KKSTNI AD CTF 2021', host: 'Pusat Sandi dan Siber TNI AD', year: '2021', tag: 'WINNER' },
+  { place: '2nd Place', event: 'Gemastik XIV Keamanan Siber', host: 'PUSPRESNAS & Telkom University', year: '2021', tag: 'PODIUM' },
+  { place: '2nd Place', event: 'COMPFEST 12 CTF', host: 'Universitas Indonesia', year: '2020', tag: 'PODIUM' },
 ];
 
 const TIMELINE = [
@@ -129,32 +129,56 @@ export default function Home() {
                 </Link>
               </div>
 
-              {/* Stats Bar */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-[#262626] max-w-lg">
-                <div className="group">
-                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
-                    2017
+              {/* Stats Bar + CTFtime Badge */}
+              <div className="pt-8 border-t border-[#262626] max-w-lg space-y-5">
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="group">
+                    <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
+                      2017
+                    </div>
+                    <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
+                      Established
+                    </div>
                   </div>
-                  <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
-                    Established
+                  <div className="group">
+                    <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
+                      20+
+                    </div>
+                    <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
+                      National Titles
+                    </div>
+                  </div>
+                  <div className="group">
+                    <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
+                      100%
+                    </div>
+                    <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
+                      Student Run
+                    </div>
                   </div>
                 </div>
-                <div className="group">
-                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
-                    20+
+
+                {/* CTFtime Verified Standing Pill */}
+                <a
+                  href="https://ctftime.org/team/45168"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-between w-full p-3.5 rounded-xl border border-[#262626] bg-[#0c0c0c] hover:border-[#404040] hover:bg-[#121212] transition duration-300 group"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-white select-none" />
+                    <div className="flex flex-col">
+                      <span className="font-heading text-xs font-bold text-white flex items-center gap-1.5">
+                        <span>CTFtime Rating Team #45168</span>
+                        <span className="text-[10px] font-mono text-[#737373]">(Academic ID)</span>
+                      </span>
+                      <span className="font-mono text-[11px] text-[#a3a3a3]">
+                        Peak National Standing: #3 Indonesia • Global Rating Points Record
+                      </span>
+                    </div>
                   </div>
-                  <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
-                    National Titles
-                  </div>
-                </div>
-                <div className="group">
-                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
-                    100%
-                  </div>
-                  <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
-                    Student Run
-                  </div>
-                </div>
+                  <ArrowUpRight className="w-4 h-4 text-[#737373] group-hover:text-white transition" />
+                </a>
               </div>
             </div>
 
@@ -280,21 +304,22 @@ export default function Home() {
             {FEATURED_TROPHIES.map((t, idx) => (
               <div
                 key={idx}
-                className="bg-[#121212] border border-[#222222] hover:border-[#383838] rounded-2xl p-5 space-y-4 transition duration-300 group hover:-translate-y-1"
+                className="bg-[#101010] border border-[#222222] hover:border-[#383838] rounded-2xl p-5 space-y-4 transition duration-300 group hover:-translate-y-1"
               >
                 <div className="flex items-center justify-between">
-                  <span
-                    className={`font-mono text-[11px] font-bold px-3 py-1 rounded-full border ${t.rankColor}`}
-                  >
-                    {t.place}
+                  <div className="inline-flex items-center gap-1.5 font-mono text-[11px] text-white">
+                    <span className="text-[#525252] select-none font-light">/</span>
+                    <span className="font-bold tracking-tight uppercase">{t.place}</span>
+                  </div>
+                  <span className="font-mono text-xs text-[#737373] bg-[#141414] px-2 py-0.5 rounded border border-[#262626]">
+                    {t.year}
                   </span>
-                  <span className="font-mono text-xs text-[#737373]">{t.year}</span>
                 </div>
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-white group-hover:text-white transition">
+                  <h3 className="font-heading text-base font-bold text-white group-hover:text-white transition">
                     {t.event}
                   </h3>
-                  <p className="font-sans text-xs text-[#8a8a8a] mt-1">{t.host}</p>
+                  <p className="font-sans text-xs text-[#737373] mt-1">{t.host}</p>
                 </div>
               </div>
             ))}

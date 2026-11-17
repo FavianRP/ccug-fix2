@@ -212,24 +212,18 @@ export default function ContestsPage() {
     }
   };
 
-  // Helper formatting badge
+  // Helper formatting badge: clean monochrome technical pill
   const getBadgeStyle = (contest: Contest) => {
     const title = (contest.rankTitle || "").toLowerCase();
     const place = contest.place;
 
     if (place === 1 || title.includes("1st")) {
-      return "bg-[#2a2614] border-[#5e5320] text-[#ffd54f]";
+      return "bg-white text-black border-white font-black";
     }
-    if (place === 2 || title.includes("2nd")) {
-      return "bg-[#1c2834] border-[#28425a] text-[#78b3ea]";
+    if (place === 2 || title.includes("2nd") || place === 3 || title.includes("3rd") || title.includes("runner")) {
+      return "bg-[#1f1f1f] text-white border-[#404040]";
     }
-    if (place === 3 || title.includes("3rd") || title.includes("runner")) {
-      return "bg-[#272119] border-[#4d3a24] text-[#f0a45d]";
-    }
-    if (title.includes("top")) {
-      return "bg-[#241e2b] border-[#443054] text-[#cb98eb]";
-    }
-    return "bg-[#18231c] border-[#25422e] text-[#81C995]"; // Finalist
+    return "bg-[#111111] text-[#a3a3a3] border-[#262626]";
   };
 
   const getDisplayPlacement = (contest: Contest) => {
@@ -354,11 +348,12 @@ export default function ContestsPage() {
                       {/* Placement */}
                       <td className="py-4 px-6 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border ${getBadgeStyle(
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono font-medium border ${getBadgeStyle(
                             contest
                           )}`}
                         >
-                          {getDisplayPlacement(contest)}
+                          <span className="text-[10px] opacity-40 select-none">/</span>
+                          <span>{getDisplayPlacement(contest)}</span>
                         </span>
                       </td>
 
