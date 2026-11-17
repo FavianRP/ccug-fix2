@@ -61,22 +61,24 @@ export default function Home() {
   return (
     <div className="space-y-28 pb-28">
       {/* Hero Section with Ambient Glow and Floating Animations */}
-      <section className="relative overflow-hidden border-b border-[#262626] bg-gradient-to-b from-[#0a0a0a] via-[#050505] to-[#000000]">
+      <section className="relative overflow-hidden border-b border-[#262626] bg-black bg-grid-pattern">
         {/* Subtle Ambient Radial Backlight */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-white/[0.03] blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-white/[0.04] blur-[140px] rounded-full pointer-events-none animate-pulse-glow" />
 
         <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 font-mono text-xs text-[#a3a3a3] border border-[#262626] rounded-full px-4 py-1.5 bg-[#111111]/80 backdrop-blur-sm">
-                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <div className="inline-flex items-center gap-2 font-mono text-xs text-[#a3a3a3] border border-[#262626] rounded-full px-4 py-1.5 bg-[#111111]/90 backdrop-blur-md shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-white animate-ping" />
                 <span>Universitas Gunadarma • Jakarta, Indonesia</span>
               </div>
 
               <h1 className="font-heading text-5xl sm:text-7xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.04]">
                 Cyber Community <br />
-                <span className="text-[#a3a3a3]">Universitas Gunadarma</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffffff] via-[#d4d4d4] to-[#737373]">
+                  Universitas Gunadarma
+                </span>
               </h1>
 
               <p className="text-[#a3a3a3] text-base sm:text-lg max-w-xl font-sans leading-relaxed">
@@ -90,7 +92,7 @@ export default function Home() {
                   href="https://pendaftaran.ccug.gunadarma.ac.id"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-black rounded-full hover:bg-[#e5e5e5] transition shadow-lg hover:shadow-white/10"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-black rounded-full hover:bg-[#e5e5e5] transition-all duration-300 hover:scale-[1.03] shadow-lg hover:shadow-white/10"
                 >
                   <span>Join CCUG</span>
                   <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
@@ -98,7 +100,7 @@ export default function Home() {
 
                 <Link
                   href="/members"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#333333] hover:border-white text-white rounded-full bg-[#141414] hover:bg-[#1f1f1f] transition"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#333333] hover:border-white text-white rounded-full bg-[#141414] hover:bg-[#1f1f1f] transition-all duration-300 hover:scale-[1.03]"
                 >
                   <span>Meet the Members</span>
                   <ArrowRight className="w-4 h-4" />
@@ -106,7 +108,7 @@ export default function Home() {
 
                 <Link
                   href="/posts"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#333333] hover:border-white text-[#a3a3a3] hover:text-white rounded-full transition"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#333333] hover:border-white text-[#a3a3a3] hover:text-white rounded-full transition-all duration-300 hover:scale-[1.03]"
                 >
                   <span>Read Writeups</span>
                   <BookOpen className="w-4 h-4" />
@@ -115,24 +117,24 @@ export default function Home() {
 
               {/* Stats Bar */}
               <div className="grid grid-cols-3 gap-6 pt-8 border-t border-[#262626] max-w-lg">
-                <div>
-                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                <div className="group">
+                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
                     2017
                   </div>
                   <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
                     Established
                   </div>
                 </div>
-                <div>
-                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                <div className="group">
+                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
                     20+
                   </div>
                   <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
                     National Titles
                   </div>
                 </div>
-                <div>
-                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                <div className="group">
+                  <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
                     100%
                   </div>
                   <div className="font-sans text-xs text-[#737373] uppercase tracking-wider">
@@ -144,20 +146,20 @@ export default function Home() {
 
             {/* Right Col: 3D Crest with Floating Animation */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <div className="w-full max-w-md aspect-square bg-[#0e0e0e] border border-[#262626] rounded-3xl p-8 flex flex-col justify-between relative shadow-2xl overflow-hidden group hover:border-[#383838] transition duration-500">
+              <div className="w-full max-w-md aspect-square bg-[#0c0c0c]/80 backdrop-blur-md border border-[#262626] rounded-3xl p-8 flex flex-col justify-between relative shadow-2xl overflow-hidden group hover:border-[#404040] transition-all duration-500 hover:shadow-white/[0.03]">
                 <div className="flex items-center justify-between font-mono text-[11px] text-[#737373] uppercase">
                   <span>Official Insignia</span>
                   <span>Est. May 2017</span>
                 </div>
 
-                {/* 3D GIF Animation */}
-                <div className="relative w-64 h-64 mx-auto my-auto flex items-center justify-center animate-bounce-slow">
+                {/* 3D GIF Animation with gentle floating */}
+                <div className="relative w-64 h-64 mx-auto my-auto flex items-center justify-center animate-float">
                   <Image
                     src="/img/3dgifmaker16954.gif"
                     alt="CCUG 3D Crest"
                     width={260}
                     height={260}
-                    className="object-contain drop-shadow-[0_15px_25px_rgba(255,255,255,0.06)]"
+                    className="object-contain drop-shadow-[0_20px_35px_rgba(255,255,255,0.08)] transition-transform duration-500 group-hover:scale-105"
                     unoptimized
                     priority
                   />

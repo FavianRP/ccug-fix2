@@ -37,6 +37,7 @@ type UserType = {
 };
 
 const EXPERTISE_COLORS: Record<string, { bg: string; text: string }> = {
+  Leader: { bg: 'bg-[#2a2614] border-[#5e5320]', text: 'text-[#ffd54f]' },
   Reverse: { bg: 'bg-[#1e2a22] border-[#2e4c34]', text: 'text-[#81C995]' },
   PWN: { bg: 'bg-[#1c2834] border-[#28425a]', text: 'text-[#78b3ea]' },
   Web: { bg: 'bg-[#2b271c] border-[#4f4327]', text: 'text-[#fbc02d]' },
