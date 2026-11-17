@@ -3,12 +3,22 @@ const mongoose = require('mongoose');
 const contestSchema = new mongoose.Schema({
   place: {
     type: Number,
-    required: true
+    default: 0
+  },
+  rankTitle: {
+    type: String,
+    trim: true,
+    default: 'Finalist'
   },
   event: {
     type: String,
     required: true,
     trim: true
+  },
+  host: {
+    type: String,
+    trim: true,
+    default: ''
   },
   year: {
     type: Number,
@@ -16,11 +26,11 @@ const contestSchema = new mongoose.Schema({
   },
   rating: {
     type: Number,
-    required: true
+    default: 0
   },
   ctfPoints: {
     type: Number,
-    required: true
+    default: 0
   },
   createdAt: {
     type: Date,

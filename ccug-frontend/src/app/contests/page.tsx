@@ -1,26 +1,17 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
-import { Trophy, Plus, Edit2, Trash2, X, LogOut } from "lucide-react";
+import { Trophy, Plus, Edit2, Trash2, X, LogOut, ArrowLeft, Award, Medal, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const getBaseUrl = () => {
-  if (typeof window !== "undefined") {
-    // If running in browser on production, use relative /api
-    if (window.location.origin.includes("ccug.gunadarma.ac.id")) {
-      return "";
-    }
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-};
 
 interface Contest {
   _id: string;
   place: number;
+  rankTitle?: string;
   event: string;
+  host?: string;
   year: number;
-  rating: number;
-  ctfPoints: number;
 }
 
 export default function ContestsPage() {
@@ -32,54 +23,47 @@ export default function ContestsPage() {
   const [deletingContest, setDeletingContest] = useState<Contest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [formData, setFormData] = useState({
-    place: "",
+    place: "0",
+    rankTitle: "Finalist",
     event: "",
-    year: "",
-    rating: "",
-    ctfPoints: "",
+    host: "",
+    year: new Date().getFullYear().toString(),
   });
 
-  // Helper function untuk mendapatkan auth headers
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     return {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     };
   };
 
-  // Check authentication status
   useEffect(() => {
     const checkAuth = () => {
-      const userStr = localStorage.getItem("user");
+      const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
       if (userStr) {
-        const user = JSON.parse(userStr);
-        setCurrentUser(user);
-        setIsAdmin(user.role === "admin");
+        try {
+          const user = JSON.parse(userStr);
+          setCurrentUser(user);
+          setIsAdmin(user.role === "admin");
+        } catch (e) {}
       }
     };
     checkAuth();
   }, []);
 
-  useEffect(() => {
-    document.title = "Contests | CCUG";
-    loadContests();
-  }, [showAll]);
-
   const loadContests = async () => {
     setIsLoading(true);
     setError(null);
 
-    const limit = showAll ? 100 : 35;
     const endpoints = [
-      `/api/contests?limit=${limit}`,
-      `https://ccug.gunadarma.ac.id/api/contests?limit=${limit}`,
-      `http://localhost:5000/api/contests?limit=${limit}`,
+      `/api/contests?limit=150`,
+      `https://ccug.gunadarma.ac.id/api/contests?limit=150`,
+      `http://localhost:5000/api/contests?limit=150`,
     ];
 
     let loaded = false;
@@ -93,9 +77,7 @@ export default function ContestsPage() {
           loaded = true;
           break;
         }
-      } catch (err) {
-        // try next
-      }
+      } catch (err) {}
     }
 
     if (!loaded) {
@@ -105,18 +87,20 @@ export default function ContestsPage() {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    document.title = "Tournament Record & Trophies - CCUG";
+    loadContests();
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setCurrentUser(null);
     setIsAdmin(false);
-    router.push("/login");
   };
 
   const openModal = (contest: Contest | null = null) => {
-    // Check if user is admin
     if (!isAdmin) {
-      alert("Only admins can add or edit contests. Please login as admin.");
       router.push("/login");
       return;
     }
@@ -125,19 +109,19 @@ export default function ContestsPage() {
       setEditingContest(contest);
       setFormData({
         place: contest.place.toString(),
+        rankTitle: contest.rankTitle || (contest.place === 1 ? "1st Place" : contest.place === 2 ? "2nd Place" : contest.place === 3 ? "3rd Place" : "Finalist"),
         event: contest.event,
+        host: contest.host || "",
         year: contest.year.toString(),
-        rating: contest.rating.toString(),
-        ctfPoints: contest.ctfPoints.toString(),
       });
     } else {
       setEditingContest(null);
       setFormData({
-        place: "",
+        place: "0",
+        rankTitle: "Finalist",
         event: "",
+        host: "",
         year: new Date().getFullYear().toString(),
-        rating: "",
-        ctfPoints: "",
       });
     }
     setIsModalOpen(true);
@@ -146,32 +130,23 @@ export default function ContestsPage() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingContest(null);
-    setFormData({
-      place: "",
-      event: "",
-      year: "",
-      rating: "",
-      ctfPoints: "",
-    });
   };
 
-  const handleSubmit = async () => {
-    if (!formData.place || !formData.event || !formData.year || !formData.rating || !formData.ctfPoints) {
-      alert("All fields are required");
-      return;
-    }
-
-    const contestData = {
-      place: parseInt(formData.place),
-      event: formData.event,
-      year: parseInt(formData.year),
-      rating: parseFloat(formData.rating),
-      ctfPoints: parseInt(formData.ctfPoints),
-    };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
     try {
+      const contestData = {
+        place: parseInt(formData.place) || 0,
+        rankTitle: formData.rankTitle || "Finalist",
+        event: formData.event,
+        host: formData.host,
+        year: parseInt(formData.year) || new Date().getFullYear(),
+      };
+
       let response;
-      const baseUrl = getBaseUrl();
+      const baseUrl = typeof window !== "undefined" && window.location.origin.includes("ccug.gunadarma.ac.id") ? "" : "http://localhost:5000";
+
       if (editingContest) {
         response = await fetch(`${baseUrl}/api/contests/${editingContest._id}`, {
           method: "PUT",
@@ -188,16 +163,6 @@ export default function ContestsPage() {
         });
       }
 
-      // Handle authentication errors
-      if (response.status === 401 || response.status === 403) {
-        const errorData = await response.json();
-        alert(errorData.message || "You must be logged in as admin to perform this action");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        router.push("/login");
-        return;
-      }
-
       if (!response.ok) {
         throw new Error("Failed to save contest");
       }
@@ -206,18 +171,15 @@ export default function ContestsPage() {
       closeModal();
     } catch (error) {
       console.error("Error saving contest:", error);
-      alert("Failed to save contest. Please try again.");
+      alert("Failed to save contest.");
     }
   };
 
   const openDeleteModal = (contest: Contest) => {
-    // Check if user is admin
     if (!isAdmin) {
-      alert("Only admins can delete contests. Please login as admin.");
       router.push("/login");
       return;
     }
-
     setDeletingContest(contest);
     setIsDeleteModalOpen(true);
   };
@@ -231,22 +193,12 @@ export default function ContestsPage() {
     if (!deletingContest) return;
 
     try {
-      const baseUrl = getBaseUrl();
+      const baseUrl = typeof window !== "undefined" && window.location.origin.includes("ccug.gunadarma.ac.id") ? "" : "http://localhost:5000";
       const response = await fetch(`${baseUrl}/api/contests/${deletingContest._id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
         credentials: "include",
       });
-
-      // Handle authentication errors
-      if (response.status === 401 || response.status === 403) {
-        const errorData = await response.json();
-        alert(errorData.message || "You must be logged in as admin to perform this action");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        router.push("/login");
-        return;
-      }
 
       if (!response.ok) {
         throw new Error("Failed to delete contest");
@@ -256,198 +208,192 @@ export default function ContestsPage() {
       closeDeleteModal();
     } catch (error) {
       console.error("Error deleting contest:", error);
-      alert("Failed to delete contest. Please try again.");
+      alert("Failed to delete contest.");
     }
   };
 
-  const getPlaceIcon = (place: number) => {
-    if (place === 1) return "👑";
-    if (place === 2) return "🥈";
-    if (place === 3) return "🥉";
-    if (place === 4) return "🏅";
-    return "🏆";
+  // Helper formatting badge
+  const getBadgeStyle = (contest: Contest) => {
+    const title = (contest.rankTitle || "").toLowerCase();
+    const place = contest.place;
+
+    if (place === 1 || title.includes("1st")) {
+      return "bg-[#2a2614] border-[#5e5320] text-[#ffd54f]";
+    }
+    if (place === 2 || title.includes("2nd")) {
+      return "bg-[#1c2834] border-[#28425a] text-[#78b3ea]";
+    }
+    if (place === 3 || title.includes("3rd") || title.includes("runner")) {
+      return "bg-[#272119] border-[#4d3a24] text-[#f0a45d]";
+    }
+    if (title.includes("top")) {
+      return "bg-[#241e2b] border-[#443054] text-[#cb98eb]";
+    }
+    return "bg-[#18231c] border-[#25422e] text-[#81C995]"; // Finalist
   };
 
-  const toggleShowAll = () => {
-    setShowAll(!showAll);
+  const getDisplayPlacement = (contest: Contest) => {
+    if (contest.rankTitle) return contest.rankTitle;
+    if (contest.place === 1) return "1st Place";
+    if (contest.place === 2) return "2nd Place";
+    if (contest.place === 3) return "3rd Place";
+    if (contest.place > 0) return `Top ${contest.place}`;
+    return "Finalist";
   };
+
+  // Stats calculation
+  const totalTournaments = contests.length;
+  const podiumFinishes = contests.filter(
+    (c) => c.place === 1 || c.place === 2 || c.place === 3 || (c.rankTitle && (c.rankTitle.includes("Place") || c.rankTitle.includes("Runner")))
+  ).length;
+  const championships = contests.filter((c) => c.place === 1 || (c.rankTitle && c.rankTitle.includes("1st"))).length;
+  const finalists = totalTournaments - podiumFinishes;
 
   return (
-    <div className="min-h-screen ccug-bg text-white">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Breadcrumb & User Info */}
-        <div className="mb-8 flex justify-between items-center">
-          <p className="text-ccug-gray text-sm">
-            <Link href="/" className="hover:text-white transition">
-              Home
-            </Link>
-            <span className="mx-2">»</span>
-            <span className="text-white">Contests</span>
-          </p>
+    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+      <main className="max-w-7xl mx-auto px-6 py-12 space-y-10">
+        {/* Navigation & Admin bar */}
+        <div className="flex items-center justify-between border-b border-[#262626] pb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-xs font-mono text-[#a3a3a3] hover:text-white transition uppercase tracking-wider"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Home</span>
+          </Link>
 
-          {/* User Info & Logout */}
-          {currentUser && (
+          {currentUser && isAdmin && (
             <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm text-white font-medium">{currentUser.username}</p>
-                <p className="text-xs text-ccug-gray">
-                  {isAdmin ? "Admin" : "User"}
-                </p>
-              </div>
+              <span className="text-xs font-mono text-[#81C995]">Logged in as Admin</span>
+              <button
+                onClick={() => openModal()}
+                className="bg-white text-black font-heading text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full hover:bg-[#e5e5e5] transition flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Record</span>
+              </button>
               <button
                 onClick={handleLogout}
-                className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/50 px-3 py-2 rounded-lg flex items-center gap-2 transition text-sm"
+                className="text-xs font-mono text-[#a3a3a3] hover:text-white transition"
               >
-                <LogOut className="w-4 h-4" />
                 Logout
               </button>
             </div>
           )}
         </div>
 
-        {/* Header */}
-        <div className="mb-12 flex justify-between items-center flex-wrap gap-4">
-          <div className="flex-1">
-            <h2 className="text-4xl font-bold mb-4">Contests</h2>
-            <div className="border-b border-ccug-purple w-full"></div>
+        {/* Page Title */}
+        <section className="space-y-4">
+          <div className="font-mono text-xs text-[#737373] uppercase tracking-widest flex items-center gap-2">
+            <Trophy className="w-3.5 h-3.5 text-white" />
+            <span>Competitive Milestones</span>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={toggleShowAll}
-              className="bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 border border-blue-500/50 px-4 py-2 rounded-lg transition font-semibold text-sm"
-            >
-              {showAll ? "Show Top 25" : "Show Top 100"}
-            </button>
-            
-            {/* Add Contest Button - Only show if admin */}
-            {isAdmin && (
-              <button
-                onClick={() => openModal()}
-                className="bg-ccug-purple hover:bg-ccug-purple/80 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"
-              >
-                <Plus className="w-5 h-5" />
-                Add Contest
-              </button>
-            )}
+          <h1 className="font-heading text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+            Tournament Record & Trophies
+          </h1>
+          <p className="text-[#a3a3a3] font-sans text-base max-w-2xl leading-relaxed">
+            Historical podium finishes, championship titles, and competitive CTF achievements attained by
+            Cyber Community Universitas Gunadarma since 2017.
+          </p>
+        </section>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-[#0c0c0c] border border-[#262626] rounded-2xl">
+          <div>
+            <p className="text-[#737373] font-mono text-xs uppercase tracking-wider">Total Contests</p>
+            <p className="text-3xl font-heading font-extrabold text-white mt-1">{totalTournaments}</p>
+          </div>
+          <div>
+            <p className="text-[#737373] font-mono text-xs uppercase tracking-wider">Championships (1st)</p>
+            <p className="text-3xl font-heading font-extrabold text-[#ffd54f] mt-1">{championships}</p>
+          </div>
+          <div>
+            <p className="text-[#737373] font-mono text-xs uppercase tracking-wider">Podium Finishes</p>
+            <p className="text-3xl font-heading font-extrabold text-white mt-1">{podiumFinishes}</p>
+          </div>
+          <div>
+            <p className="text-[#737373] font-mono text-xs uppercase tracking-wider">National Finalists</p>
+            <p className="text-3xl font-heading font-extrabold text-[#81C995] mt-1">{finalists}</p>
           </div>
         </div>
 
-        {/* Info Message for non-admin users */}
-        {!isAdmin && (
-          <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-4 mb-6">
-            <p className="text-blue-300 text-sm">
-              ℹ️ You are viewing contests in read-only mode. 
-              {!currentUser && (
-                <span> <a className="font-medium">Login as admin</a> to add, edit, or delete contests.</span>
-              )}
-            </p>
-          </div>
-        )}
-
         {/* Error State */}
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 mb-6">
-            <p className="text-red-300">{error}</p>
-            <p className="text-red-300 text-sm mt-2">
-              Make sure backend is running: <code className="bg-black/30 px-2 py-1 rounded">cd ccug-backend && npm run dev</code>
-            </p>
+          <div className="bg-[#1f1515] border border-[#4d2828] rounded-xl p-4 text-sm text-[#f87171]">
+            <p>{error}</p>
           </div>
         )}
 
         {/* Loading State */}
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-ccug-purple"></div>
-            <p className="text-ccug-gray mt-4">Loading contests...</p>
+          <div className="text-center py-20">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent" />
+            <p className="text-[#737373] font-mono text-xs mt-4">Loading tournament records...</p>
           </div>
         ) : contests.length === 0 ? (
-          <div className="text-center py-12">
-            <Trophy className="w-16 h-16 text-ccug-gray mx-auto mb-4" />
-            <p className="text-ccug-gray mb-4">No contests yet. {isAdmin && "Add your first achievement!"}</p>
+          <div className="text-center py-20 border border-[#262626] rounded-2xl bg-[#0a0a0a]">
+            <Trophy className="w-12 h-12 text-[#404040] mx-auto mb-3" />
+            <p className="text-[#737373] font-mono text-sm">No tournament records found.</p>
           </div>
         ) : (
-          <>
-            {/* Table */}
+          /* Sleek Monochrome Table */
+          <div className="border border-[#262626] rounded-2xl overflow-hidden bg-[#0c0c0c]">
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-ccug-purple/20 text-left">
-                    <th className="px-4 sm:px-6 py-4 font-semibold text-sm sm:text-base rounded-tl-lg">
-                      PLACE
-                    </th>
-                    <th className="px-4 sm:px-6 py-4 font-semibold text-sm sm:text-base">
-                      EVENT
-                    </th>
-                    <th className="px-4 sm:px-6 py-4 font-semibold text-sm sm:text-base text-right">
-                      POINTS
-                    </th>
-                    {isAdmin && (
-                      <th className="px-4 sm:px-6 py-4 font-semibold text-sm sm:text-base text-right rounded-tr-lg">
-                        ACTIONS
-                      </th>
-                    )}
+                  <tr className="border-b border-[#262626] bg-[#111111] font-mono text-[11px] text-[#737373] uppercase tracking-wider">
+                    <th className="py-4 px-6">Result / Placement</th>
+                    <th className="py-4 px-6">Event & Organizer</th>
+                    <th className="py-4 px-6 text-right">Year</th>
+                    {isAdmin && <th className="py-4 px-6 text-right">Actions</th>}
                   </tr>
                 </thead>
-
-                <tbody>
-                  {contests.map((contest, index) => (
-                    <tr
-                      key={contest._id}
-                      className={`border-b border-gray-800 hover:bg-gray-900/50 transition ${
-                        index % 2 === 0 ? "bg-gray-900/20" : ""
-                      }`}
-                    >
-                      {/* Place */}
-                      <td className="px-4 sm:px-6 py-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <span className="text-xl sm:text-2xl">
-                            {getPlaceIcon(contest.place)}
-                          </span>
-                          <span className="font-bold text-lg sm:text-xl">
-                            {contest.place}
-                          </span>
-                        </div>
+                <tbody className="divide-y divide-[#1f1f1f] font-sans text-sm">
+                  {contests.map((contest) => (
+                    <tr key={contest._id} className="hover:bg-[#141414] transition">
+                      {/* Placement */}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border ${getBadgeStyle(
+                            contest
+                          )}`}
+                        >
+                          {getDisplayPlacement(contest)}
+                        </span>
                       </td>
 
-                      {/* Event */}
-                      <td className="px-4 sm:px-6 py-4">
-                        <div>
-                          <p className="font-semibold text-sm sm:text-base">
+                      {/* Event & Organizer */}
+                      <td className="py-4 px-6">
+                        <div className="space-y-0.5">
+                          <p className="font-heading font-bold text-white text-base">
                             {contest.event}
                           </p>
-                          <p className="text-xs sm:text-sm text-gray-400">
-                            ({contest.year})
-                          </p>
+                          {contest.host && (
+                            <p className="text-xs text-[#8a8a8a]">{contest.host}</p>
+                          )}
                         </div>
                       </td>
 
-                      {/* Points */}
-                      <td className="px-4 sm:px-6 py-4 text-right">
-                        <div>
-                          <p className="text-ccug-purple font-bold text-sm sm:text-base">
-                            {contest.rating.toFixed(3)} rating points
-                          </p>
-                          <p className="text-xs sm:text-sm text-blue-400">
-                            {contest.ctfPoints.toLocaleString()} CTF points
-                          </p>
-                        </div>
+                      {/* Year */}
+                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                        <span className="font-mono text-xs text-[#a3a3a3] bg-[#171717] px-2.5 py-1 rounded-md border border-[#262626]">
+                          {contest.year}
+                        </span>
                       </td>
 
-                      {/* Actions - Only show if admin */}
+                      {/* Actions for Admin */}
                       {isAdmin && (
-                        <td className="px-4 sm:px-6 py-4 text-right">
-                          <div className="flex gap-2 justify-end">
+                        <td className="py-4 px-6 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => openModal(contest)}
-                              className="bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 p-2 rounded transition"
-                              title="Edit"
+                              className="p-1.5 text-[#a3a3a3] hover:text-white rounded hover:bg-[#262626] transition"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => openDeleteModal(contest)}
-                              className="bg-red-500/20 hover:bg-red-500/40 text-red-300 p-2 rounded transition"
-                              title="Delete"
+                              className="p-1.5 text-[#f87171] hover:text-red-300 rounded hover:bg-red-500/10 transition"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -459,147 +405,123 @@ export default function ContestsPage() {
                 </tbody>
               </table>
             </div>
-
-            {/* Stats Summary */}
-            <div className="mt-8 p-6 bg-gray-900/50 rounded-lg border border-ccug-purple/20">
-              <h3 className="text-xl font-bold mb-4">Achievement Summary</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm">Total Contests</p>
-                  <p className="text-2xl font-bold text-ccug-purple">{contests.length}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Best Placement</p>
-                  <p className="text-2xl font-bold text-ccug-purple">
-                    #{Math.min(...contests.map((c) => c.place))}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Total CTF Points</p>
-                  <p className="text-2xl font-bold text-ccug-purple">
-                    {contests.reduce((sum, c) => sum + c.ctfPoints, 0).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </>
+          </div>
         )}
       </main>
 
-      {/* Add/Edit Modal */}
+      {/* Admin Add/Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-ccug-dark border-2 border-ccug-purple rounded-lg max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold">
-                {editingContest ? "Edit Contest" : "Add New Contest"}
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111111] border border-[#262626] rounded-2xl max-w-md w-full p-6 space-y-5">
+            <div className="flex justify-between items-center border-b border-[#262626] pb-4">
+              <h3 className="font-heading text-lg font-bold text-white">
+                {editingContest ? "Edit Tournament Record" : "Add Tournament Record"}
               </h3>
-              <button onClick={closeModal} className="text-ccug-gray hover:text-white transition">
-                <X className="w-6 h-6" />
+              <button onClick={closeModal} className="text-[#737373] hover:text-white transition">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Place *</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={formData.place}
-                  onChange={(e) => setFormData({ ...formData, place: e.target.value })}
-                  className="w-full bg-ccug-dark border border-ccug-gray/50 rounded px-3 py-2 text-white focus:border-ccug-purple focus:outline-none"
-                  placeholder="Enter placement (e.g., 1, 2, 3)"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Event Name *</label>
+                <label className="block font-mono text-xs text-[#a3a3a3] mb-1.5">
+                  Result / Placement Title (e.g. 1st Place, Finalist, Top 5) *
+                </label>
                 <input
                   type="text"
+                  required
+                  value={formData.rankTitle}
+                  onChange={(e) => setFormData({ ...formData, rankTitle: e.target.value })}
+                  className="w-full bg-[#181818] border border-[#333333] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-white transition"
+                  placeholder="e.g. 1st Place or Finalist"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs text-[#a3a3a3] mb-1.5">
+                  Numeric Rank (1 for 1st, 2 for 2nd, 3 for 3rd, 0 for Finalist)
+                </label>
+                <input
+                  type="number"
+                  value={formData.place}
+                  onChange={(e) => setFormData({ ...formData, place: e.target.value })}
+                  className="w-full bg-[#181818] border border-[#333333] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-white transition"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs text-[#a3a3a3] mb-1.5">Event Name *</label>
+                <input
+                  type="text"
+                  required
                   value={formData.event}
                   onChange={(e) => setFormData({ ...formData, event: e.target.value })}
-                  className="w-full bg-ccug-dark border border-ccug-gray/50 rounded px-3 py-2 text-white focus:border-ccug-purple focus:outline-none"
-                  placeholder="e.g., Grey Cat The Flag 2025"
+                  className="w-full bg-[#181818] border border-[#333333] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-white transition"
+                  placeholder="e.g. POLRICTF 2026"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Year *</label>
+                <label className="block font-mono text-xs text-[#a3a3a3] mb-1.5">Organizer / Host</label>
+                <input
+                  type="text"
+                  value={formData.host}
+                  onChange={(e) => setFormData({ ...formData, host: e.target.value })}
+                  className="w-full bg-[#181818] border border-[#333333] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-white transition"
+                  placeholder="e.g. Universitas Gadjah Mada"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs text-[#a3a3a3] mb-1.5">Year *</label>
                 <input
                   type="number"
-                  min="2000"
-                  max="2100"
+                  required
                   value={formData.year}
                   onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                  className="w-full bg-ccug-dark border border-ccug-gray/50 rounded px-3 py-2 text-white focus:border-ccug-purple focus:outline-none"
-                  placeholder="e.g., 2025"
+                  className="w-full bg-[#181818] border border-[#333333] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-white transition"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Rating Points *</label>
-                <input
-                  type="number"
-                  step="0.001"
-                  min="0"
-                  value={formData.rating}
-                  onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
-                  className="w-full bg-ccug-dark border border-ccug-gray/50 rounded px-3 py-2 text-white focus:border-ccug-purple focus:outline-none"
-                  placeholder="e.g., 47.339"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">CTF Points *</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.ctfPoints}
-                  onChange={(e) => setFormData({ ...formData, ctfPoints: e.target.value })}
-                  className="w-full bg-ccug-dark border border-ccug-gray/50 rounded px-3 py-2 text-white focus:border-ccug-purple focus:outline-none"
-                  placeholder="e.g., 16396"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
+              <div className="flex justify-end gap-3 pt-3 border-t border-[#262626]">
                 <button
+                  type="button"
                   onClick={closeModal}
-                  className="flex-1 bg-ccug-gray/20 hover:bg-ccug-gray/40 text-white px-4 py-2 rounded-lg transition"
+                  className="px-4 py-2 text-xs font-mono text-[#a3a3a3] hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={handleSubmit}
-                  className="flex-1 bg-ccug-purple hover:bg-ccug-purple/80 text-white px-4 py-2 rounded-lg transition"
+                  type="submit"
+                  className="px-5 py-2 bg-white text-black font-heading text-xs font-bold uppercase tracking-wider rounded-full hover:bg-[#e5e5e5] transition"
                 >
-                  {editingContest ? "Update" : "Add"}
+                  Save Record
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-ccug-dark border-2 border-red-500/50 rounded-lg max-w-md w-full p-6">
-            <h3 className="text-2xl font-bold mb-4">Delete Contest</h3>
-            <p className="text-ccug-gray mb-6">
-              Are you sure you want to delete{" "}
-              <span className="text-white font-bold">{deletingContest?.event}</span>? This action
+      {isDeleteModalOpen && deletingContest && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111111] border border-[#262626] rounded-2xl max-w-sm w-full p-6 space-y-4">
+            <h3 className="font-heading text-lg font-bold text-white">Delete Tournament Record?</h3>
+            <p className="text-xs text-[#a3a3a3] leading-relaxed">
+              Are you sure you want to delete <strong>{deletingContest.event}</strong>? This action
               cannot be undone.
             </p>
-            <div className="flex gap-3">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={closeDeleteModal}
-                className="flex-1 bg-ccug-gray/20 hover:bg-ccug-gray/40 text-white px-4 py-2 rounded-lg transition"
+                className="px-4 py-2 text-xs font-mono text-[#a3a3a3] hover:text-white"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/50 px-4 py-2 rounded-lg transition"
+                className="px-5 py-2 bg-[#f87171] text-black font-heading text-xs font-bold uppercase tracking-wider rounded-full hover:bg-red-400 transition"
               >
                 Delete
               </button>
