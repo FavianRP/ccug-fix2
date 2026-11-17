@@ -4,7 +4,15 @@ import { Trophy, Plus, Edit2, Trash2, X, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    // If running in browser on production, use relative /api
+    if (window.location.origin.includes("ccug.gunadarma.ac.id")) {
+      return "";
+    }
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+};
 
 interface Contest {
   _id: string;
@@ -66,19 +74,35 @@ export default function ContestsPage() {
   const loadContests = async () => {
     setIsLoading(true);
     setError(null);
-    try {
-      const limit = showAll ? 100 : 25;
-      const res = await fetch(`${BASE_URL}/api/contests?limit=${limit}`);
-      if (!res.ok) throw new Error("Failed to fetch contests");
-      const data = await res.json();
-      setContests(data);
-    } catch (error) {
-      console.error(error);
+
+    const limit = showAll ? 100 : 35;
+    const endpoints = [
+      `/api/contests?limit=${limit}`,
+      `https://ccug.gunadarma.ac.id/api/contests?limit=${limit}`,
+      `http://localhost:5000/api/contests?limit=${limit}`,
+    ];
+
+    let loaded = false;
+
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          setContests(data);
+          loaded = true;
+          break;
+        }
+      } catch (err) {
+        // try next
+      }
+    }
+
+    if (!loaded) {
       setError("Failed to load contests. Make sure the backend server is running on port 5000.");
       setContests([]);
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   const handleLogout = () => {
@@ -147,15 +171,16 @@ export default function ContestsPage() {
 
     try {
       let response;
+      const baseUrl = getBaseUrl();
       if (editingContest) {
-        response = await fetch(`${BASE_URL}/api/contests/${editingContest._id}`, {
+        response = await fetch(`${baseUrl}/api/contests/${editingContest._id}`, {
           method: "PUT",
           headers: getAuthHeaders(),
           credentials: "include",
           body: JSON.stringify(contestData),
         });
       } else {
-        response = await fetch(`${BASE_URL}/api/contests`, {
+        response = await fetch(`${baseUrl}/api/contests`, {
           method: "POST",
           headers: getAuthHeaders(),
           credentials: "include",
@@ -206,7 +231,8 @@ export default function ContestsPage() {
     if (!deletingContest) return;
 
     try {
-      const response = await fetch(`${BASE_URL}/api/contests/${deletingContest._id}`, {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/contests/${deletingContest._id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
         credentials: "include",
