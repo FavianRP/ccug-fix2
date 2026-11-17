@@ -15,6 +15,7 @@ const User = require('./models/User');
 const { authenticateToken, requireAdmin, JWT_SECRET } = require('./middleware/auth');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Security Headers via Helmet
 app.use(helmet({
@@ -53,7 +54,7 @@ mongoose.connect(mongoURI)
 // ============= AUTH ROUTES =============
 
 // Login
-app.post('/api/auth/login', authLimiter, async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, username, password, identifier } = req.body;
     const loginId = identifier || email || username;
