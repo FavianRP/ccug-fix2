@@ -319,7 +319,7 @@ export default function MembersPage() {
             />
           </div>
 
-          {isAdmin ? (
+          {isAdmin && (
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
@@ -350,14 +350,6 @@ export default function MembersPage() {
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
-          ) : (
-            <button
-              onClick={() => router.push('/login')}
-              className="p-2 border border-[#262626] text-[#737373] hover:text-white rounded-full transition"
-              title="Admin Login"
-            >
-              <User className="w-4 h-4" />
-            </button>
           )}
         </div>
       </div>
