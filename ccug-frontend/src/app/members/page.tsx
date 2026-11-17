@@ -415,6 +415,9 @@ export default function MembersPage() {
                             }
                             alt={`${member.name}'s profile`}
                             className="aspect-square rounded-full w-12 h-12 object-cover border border-[#2e2e2e]"
+                            onError={(e) => {
+                              (e.target as any).src = 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg';
+                            }}
                           />
                           <div>
                             <div className="flex items-center gap-2">
