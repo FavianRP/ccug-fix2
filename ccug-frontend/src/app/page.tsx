@@ -6,15 +6,8 @@ import Link from 'next/link';
 import {
   ArrowUpRight,
   ArrowRight,
-  MapPin,
-  Calendar,
   BookOpen,
-  Award,
   Users,
-  Shield,
-  Code2,
-  Terminal,
-  Flag,
   Trophy,
 } from 'lucide-react';
 
@@ -53,29 +46,16 @@ const TIMELINE = [
   },
 ];
 
-const PILLARS = [
-  {
-    icon: Terminal,
-    title: 'Binary & Reverse Engineering',
-    desc: 'Low-level vulnerability research, memory corruption exploitation, assembly analysis, and executable reverse engineering.',
-  },
-  {
-    icon: Code2,
-    title: 'Web & Cryptographic Security',
-    desc: 'Auditing complex modern web applications, API security flaws, and applied mathematical cryptanalysis of encryption schemes.',
-  },
-  {
-    icon: Shield,
-    title: 'Digital Forensics & Incident Triage',
-    desc: 'Dissecting memory dumps with Volatility, investigating network packet streams (PCAP), and Open Source Intelligence (OSINT).',
-  },
-];
-
 export default function Home() {
   return (
     <div className="space-y-28 pb-28">
       {/* Hero Section with Ambient Glow and Floating Animations */}
       <section className="relative overflow-hidden border-b border-[#262626] bg-black bg-grid-pattern">
+        {/* Subtle cyber light beam running across top border */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#333333] to-transparent overflow-hidden">
+          <div className="w-1/3 h-full bg-gradient-to-r from-transparent via-white/80 to-transparent animate-beam" />
+        </div>
+
         {/* Subtle Ambient Radial Backlight */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-white/[0.04] blur-[140px] rounded-full pointer-events-none animate-pulse-glow" />
 
@@ -83,25 +63,25 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 font-mono text-xs text-[#a3a3a3] border border-[#262626] rounded-full px-4 py-1.5 bg-[#111111]/90 backdrop-blur-md shadow-sm">
+              <div className="inline-flex items-center gap-2 font-mono text-xs text-[#a3a3a3] border border-[#262626] rounded-full px-4 py-1.5 bg-[#111111]/90 backdrop-blur-md shadow-sm animate-entrance-1">
                 <span className="w-2 h-2 rounded-full bg-white animate-ping" />
                 <span>Universitas Gunadarma • Jakarta, Indonesia</span>
               </div>
 
-              <h1 className="font-heading text-5xl sm:text-7xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.04]">
+              <h1 className="font-heading text-5xl sm:text-7xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.04] animate-entrance-1">
                 Cyber Community <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffffff] via-[#d4d4d4] to-[#737373]">
                   Universitas Gunadarma
                 </span>
               </h1>
 
-              <p className="text-[#a3a3a3] text-base sm:text-lg max-w-xl font-sans leading-relaxed">
+              <p className="text-[#a3a3a3] text-base sm:text-lg max-w-xl font-sans leading-relaxed animate-entrance-2">
                 Official collegiate cybersecurity research team and premier competitive Capture The
                 Flag (CTF) organization of Universitas Gunadarma, Jakarta, Indonesia.
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-2 font-heading text-sm font-bold">
+              <div className="flex flex-wrap items-center gap-4 pt-2 font-heading text-sm font-bold animate-entrance-2">
                 <a
                   href="https://pendaftaran.ccug.gunadarma.ac.id"
                   target="_blank"
@@ -130,7 +110,7 @@ export default function Home() {
               </div>
 
               {/* Stats Bar + CTFtime Badge */}
-              <div className="pt-8 border-t border-[#262626] max-w-lg space-y-5">
+              <div className="pt-8 border-t border-[#262626] max-w-lg space-y-5 animate-entrance-3">
                 <div className="grid grid-cols-3 gap-6">
                   <div className="group">
                     <div className="font-heading text-3xl sm:text-4xl font-extrabold text-white transition-transform group-hover:-translate-y-0.5 duration-200">
@@ -183,7 +163,7 @@ export default function Home() {
             </div>
 
             {/* Right Col: 3D Crest with Floating Animation */}
-            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+            <div className="lg:col-span-5 flex justify-center lg:justify-end animate-entrance-crest">
               <div className="w-full max-w-md aspect-square bg-[#0c0c0c]/80 backdrop-blur-md border border-[#262626] rounded-3xl p-8 flex flex-col justify-between relative shadow-2xl overflow-hidden group hover:border-[#404040] transition-all duration-500 hover:shadow-white/[0.03]">
                 <div className="flex items-center justify-between font-mono text-[11px] text-[#737373] uppercase">
                   <span>Official Insignia</span>
